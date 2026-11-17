@@ -62,7 +62,7 @@ const demoVacationRequests: DemoVacationRequest[] = [
     requesterIndex: 0,
     startsInDays: 48,
     lengthInDays: 10,
-    reason: 'Summer holiday',
+    reason: 'Winter break',
     status: VacationRequestStatus.Pending,
   },
   {
