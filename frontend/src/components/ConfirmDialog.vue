@@ -25,15 +25,10 @@ keepDialogInSync(dialogElement, () => props.isOpen);
     aria-labelledby="confirm-dialog-title"
     @cancel.prevent="$emit('cancel')"
   >
-    <h2 id="confirm-dialog-title" class="text-lg font-semibold">{{ title }}</h2>
-    <p class="mt-2">{{ message }}</p>
+    <h2 id="confirm-dialog-title">{{ title }}</h2>
+    <p class="mt-2 text-ink-muted">{{ message }}</p>
     <div class="mt-6 flex flex-wrap justify-end gap-3">
-      <button
-        type="button"
-        class="button button-secondary"
-        :disabled="isBusy"
-        @click="$emit('cancel')"
-      >
+      <button type="button" class="button" :disabled="isBusy" @click="$emit('cancel')">
         {{ cancelLabel }}
       </button>
       <button

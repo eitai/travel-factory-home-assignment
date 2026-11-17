@@ -11,9 +11,10 @@ import {
 } from '@vacation-manager/shared';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import DataState from '../components/DataState.vue';
+import PageHeading from '../components/PageHeading.vue';
 import PaginationControls from '../components/PaginationControls.vue';
 import RejectRequestDialog from '../components/RejectRequestDialog.vue';
-import VacationRequestTable from '../components/VacationRequestTable.vue';
+import VacationRequestList from '../components/VacationRequestList.vue';
 import { readApiError } from '../services/errorService';
 import {
   formatDateRange,
@@ -178,11 +179,15 @@ async function confirmRejection(comment: string): Promise<void> {
 </script>
 
 <template>
-  <h1 class="text-2xl font-semibold tracking-tight">Review requests</h1>
+  <PageHeading
+    lead="Approve or reject each request. A rejection needs a comment for the requester."
+  >
+    Requests <em>waiting for your decision.</em>
+  </PageHeading>
 
-  <form class="mt-5 flex flex-wrap gap-4" aria-label="Filters" @submit.prevent>
+  <form class="card mt-9 flex flex-wrap gap-4 p-5" aria-label="Filters" @submit.prevent>
     <div class="w-full sm:w-56">
-      <label for="review-status-filter" class="mb-1 block text-sm font-medium">Status</label>
+      <label for="review-status-filter" class="mb-1 block text-sm font-semibold">Status</label>
       <select
         id="review-status-filter"
         class="field-input"
@@ -196,7 +201,9 @@ async function confirmRejection(comment: string): Promise<void> {
       </select>
     </div>
     <div class="w-full sm:w-56">
-      <label for="review-requester-filter" class="mb-1 block text-sm font-medium">Requester</label>
+      <label for="review-requester-filter" class="mb-1 block text-sm font-semibold">
+        Requester
+      </label>
       <select
         id="review-requester-filter"
         class="field-input"
@@ -230,30 +237,30 @@ async function confirmRejection(comment: string): Promise<void> {
       </template>
 
       <template v-if="requestPage">
-        <VacationRequestTable
+        <VacationRequestList
           :vacation-requests="requestPage.items"
           :shows-requester="true"
-          caption="Vacation requests of the team"
+          label="Vacation requests of the team"
         >
           <template #actions="{ vacationRequest }">
             <template v-if="canDecide(vacationRequest)">
               <button
                 type="button"
-                class="button button-accent-outline"
+                class="button button-primary"
                 @click="requestToApprove = vacationRequest"
               >
                 Approve
               </button>
               <button
                 type="button"
-                class="button button-secondary"
+                class="button button-danger-outline"
                 @click="openRejection(vacationRequest)"
               >
                 Reject
               </button>
             </template>
           </template>
-        </VacationRequestTable>
+        </VacationRequestList>
 
         <PaginationControls
           :page="requestPage.page"

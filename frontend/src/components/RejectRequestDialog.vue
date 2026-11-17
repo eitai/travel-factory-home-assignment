@@ -51,7 +51,7 @@ function confirmRejection(): void {
     @cancel.prevent="$emit('cancel')"
   >
     <form v-if="vacationRequest" novalidate @submit.prevent="confirmRejection">
-      <h2 id="reject-dialog-title" class="text-lg font-semibold">Reject this request</h2>
+      <h2 id="reject-dialog-title">Reject this request</h2>
       <p class="mt-2">
         {{ vacationRequest.userName }},
         {{ formatDateRange(vacationRequest.startDate, vacationRequest.endDate) }}
@@ -80,12 +80,7 @@ function confirmRejection(): void {
       </div>
 
       <div class="mt-6 flex flex-wrap justify-end gap-3">
-        <button
-          type="button"
-          class="button button-secondary"
-          :disabled="isBusy"
-          @click="$emit('cancel')"
-        >
+        <button type="button" class="button" :disabled="isBusy" @click="$emit('cancel')">
           Keep it pending
         </button>
         <button type="submit" class="button button-danger" :disabled="isBusy">

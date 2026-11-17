@@ -16,22 +16,22 @@ const lastItemNumber = computed(() => Math.min(props.page * props.pageSize, prop
 
 <template>
   <nav aria-label="Pages" class="mt-4 flex flex-wrap items-center justify-between gap-3">
-    <p class="text-sm text-ink-muted tabular-nums">
+    <p class="text-ink-muted tabular-nums">
       Showing {{ firstItemNumber }} to {{ lastItemNumber }} of {{ totalItems }}
     </p>
     <div v-if="totalPages > 1" class="flex items-center gap-3">
       <button
         type="button"
-        class="button button-secondary"
+        class="button"
         :disabled="page <= 1"
         @click="$emit('changePage', page - 1)"
       >
         Previous page
       </button>
-      <p class="text-sm font-medium tabular-nums">Page {{ page }} of {{ totalPages }}</p>
+      <p class="font-semibold tabular-nums">Page {{ page }} of {{ totalPages }}</p>
       <button
         type="button"
-        class="button button-secondary"
+        class="button"
         :disabled="page >= totalPages"
         @click="$emit('changePage', page + 1)"
       >

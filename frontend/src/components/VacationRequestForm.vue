@@ -102,51 +102,41 @@ async function save(): Promise<void> {
 </script>
 
 <template>
-  <section aria-labelledby="vacation-form-heading" class="panel p-5">
-    <h2 id="vacation-form-heading" class="text-lg font-semibold">
+  <section aria-labelledby="vacation-form-heading" class="card p-6">
+    <h2 id="vacation-form-heading" class="section-title">
       {{ isEditing ? 'Edit your request' : 'Request a vacation' }}
     </h2>
 
-    <form novalidate class="mt-4 space-y-4" @submit.prevent="save">
-      <div class="grid gap-4 sm:grid-cols-2">
-        <FormField
-          field-id="start-date"
-          label="First day off"
-          :error-message="fieldErrors.startDate"
-        >
-          <template #default="{ describedBy, isInvalid }">
-            <input
-              id="start-date"
-              v-model="formValues.startDate"
-              type="date"
-              class="field-input"
-              required
-              :min="today"
-              :aria-invalid="isInvalid"
-              :aria-describedby="describedBy"
-            />
-          </template>
-        </FormField>
+    <form novalidate class="mt-5 space-y-3.5" @submit.prevent="save">
+      <FormField field-id="start-date" label="First day off" :error-message="fieldErrors.startDate">
+        <template #default="{ describedBy, isInvalid }">
+          <input
+            id="start-date"
+            v-model="formValues.startDate"
+            type="date"
+            class="field-input"
+            required
+            :min="today"
+            :aria-invalid="isInvalid"
+            :aria-describedby="describedBy"
+          />
+        </template>
+      </FormField>
 
-        <FormField field-id="end-date" label="Last day off" :error-message="fieldErrors.endDate">
-          <template #default="{ describedBy, isInvalid }">
-            <input
-              id="end-date"
-              v-model="formValues.endDate"
-              type="date"
-              class="field-input"
-              required
-              :min="earliestEndDate"
-              :aria-invalid="isInvalid"
-              :aria-describedby="describedBy"
-            />
-          </template>
-        </FormField>
-      </div>
-
-      <p aria-live="polite" class="min-h-6 text-sm font-medium">
-        <template v-if="vacationLength">Length: {{ vacationLength }}</template>
-      </p>
+      <FormField field-id="end-date" label="Last day off" :error-message="fieldErrors.endDate">
+        <template #default="{ describedBy, isInvalid }">
+          <input
+            id="end-date"
+            v-model="formValues.endDate"
+            type="date"
+            class="field-input"
+            required
+            :min="earliestEndDate"
+            :aria-invalid="isInvalid"
+            :aria-describedby="describedBy"
+          />
+        </template>
+      </FormField>
 
       <FormField
         field-id="reason"
@@ -168,18 +158,31 @@ async function save(): Promise<void> {
         </template>
       </FormField>
 
-      <p v-if="formErrorMessage" role="alert" class="text-sm font-medium text-danger">
+      <p
+        aria-live="polite"
+        class="flex min-h-[3.75rem] items-center justify-between gap-3 rounded-2xl bg-accent-soft px-4 py-2 font-semibold text-accent-strong"
+      >
+        <template v-if="vacationLength">
+          <span>Length</span>
+          <strong class="font-display text-[1.75rem] leading-none font-semibold tabular-nums">
+            {{ vacationLength }}
+          </strong>
+        </template>
+        <span v-else class="font-medium">Pick both dates to see the length.</span>
+      </p>
+
+      <p v-if="formErrorMessage" role="alert" class="text-sm font-semibold text-danger">
         {{ formErrorMessage }}
       </p>
 
-      <div class="flex flex-wrap gap-3">
-        <button type="submit" class="button button-primary" :disabled="isSaving">
+      <div class="space-y-2.5 pt-1">
+        <button type="submit" class="button button-primary button-large" :disabled="isSaving">
           {{ isEditing ? 'Save changes' : 'Submit request' }}
         </button>
         <button
           v-if="isEditing"
           type="button"
-          class="button button-secondary"
+          class="button w-full"
           :disabled="isSaving"
           @click="stopEditing"
         >

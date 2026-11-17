@@ -108,3 +108,28 @@ export function getDayOfMonth(isoDate: IsoDate): number {
 export function isWeekend(isoDate: IsoDate): boolean {
   return getIsoWeekday(isoDate) >= 6;
 }
+
+export function formatMonthName(isoDate: IsoDate, locale = 'en-GB'): string {
+  return new Intl.DateTimeFormat(locale, { month: 'long', timeZone: 'UTC' }).format(
+    toUtcDate(isoDate),
+  );
+}
+
+export function formatMonthShort(isoDate: IsoDate, locale = 'en-GB'): string {
+  return new Intl.DateTimeFormat(locale, { month: 'short', timeZone: 'UTC' }).format(
+    toUtcDate(isoDate),
+  );
+}
+
+export function formatDayWithWeekday(isoDate: IsoDate, locale = 'en-GB'): string {
+  return new Intl.DateTimeFormat(locale, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  }).format(toUtcDate(isoDate));
+}
+
+export function getYear(isoDate: IsoDate): number {
+  return toUtcDate(isoDate).getUTCFullYear();
+}

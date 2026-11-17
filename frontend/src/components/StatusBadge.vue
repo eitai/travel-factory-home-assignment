@@ -11,7 +11,7 @@ defineProps<{ status: VacationRequestStatus }>();
 
 <template>
   <span
-    class="inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-sm font-medium whitespace-nowrap"
+    class="inline-flex items-center gap-2 rounded-full py-1 pr-3.5 pl-2.5 text-sm font-bold whitespace-nowrap"
     :class="statusBadgeClasses[status]"
   >
     <span class="status-marker" :class="statusMarkerClasses[status]" aria-hidden="true"></span>

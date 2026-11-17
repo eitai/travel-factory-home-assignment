@@ -1,37 +1,46 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Figtree Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
 
-  --color-surface: #faf9f7;
-  --color-panel: #ffffff;
-  --color-line: #e7e5e4;
-  --color-line-strong: #78716c;
-  --color-ink: #1c1917;
-  --color-ink-muted: #57534e;
+  --color-surface: #f6efe2;
+  --color-surface-deep: #ecdfc8;
+  --color-panel: #fffdf8;
+  --color-line: #e4d9c4;
+  --color-line-strong: #6f7f77;
+  --color-ink: #1d2b2a;
+  --color-ink-muted: #56655f;
 
-  --color-accent: #1e3a5f;
-  --color-accent-strong: #162c49;
-  --color-accent-soft: #e6edf5;
+  --color-accent: #0c5b55;
+  --color-accent-strong: #08423e;
+  --color-accent-soft: #d9ede6;
+  --color-sun: #f4bd4a;
 
-  --color-danger: #b91c1c;
-  --color-danger-strong: #991b1b;
+  --color-danger: #9c2b1a;
+  --color-danger-strong: #7d2114;
 
-  --color-approved: #15803d;
-  --color-approved-soft: #dcfce7;
-  --color-approved-ink: #14532d;
-  --color-pending: #b45309;
-  --color-pending-soft: #fef3c7;
-  --color-pending-ink: #78350f;
-  --color-rejected: #b91c1c;
-  --color-rejected-soft: #fee2e2;
-  --color-rejected-ink: #7f1d1d;
+  --color-approved: #0c5b55;
+  --color-approved-soft: #d8f0de;
+  --color-approved-ink: #14573a;
+  --color-pending: #a8771c;
+  --color-pending-soft: #fdecc0;
+  --color-pending-stripe: #fff8e2;
+  --color-pending-ink: #734c00;
+  --color-rejected: #8f2415;
+  --color-rejected-soft: #fbdcd5;
+  --color-rejected-ink: #8f2415;
 }
 
 @layer base {
   body {
     @apply bg-surface text-ink antialiased;
+    background-image:
+      radial-gradient(900px 420px at 88% -120px, rgb(244 189 74 / 0.35), transparent 70%),
+      radial-gradient(700px 380px at -10% 10%, rgb(12 91 85 / 0.1), transparent 70%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100dvh;
   }
 
   a[href],
@@ -48,12 +57,12 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
+    outline: 3px solid var(--color-accent);
+    outline-offset: 3px;
   }
 
   dialog::backdrop {
-    background: rgb(28 25 23 / 0.5);
+    background: rgb(29 43 42 / 0.55);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -66,67 +75,133 @@
 
 @layer components {
   .button {
-    @apply inline-flex min-h-11 items-center justify-center rounded-md px-4 text-sm font-semibold transition-colors disabled:opacity-60;
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl border-[1.5px] border-line-strong bg-white px-4 font-semibold text-ink transition-[background-color,border-color,transform] duration-200 disabled:opacity-60;
+  }
+
+  .button:not(:disabled):hover {
+    @apply border-ink bg-surface;
+  }
+
+  .button:not(:disabled):active {
+    @apply scale-[0.98];
   }
 
   .button-primary {
-    @apply bg-accent text-white hover:bg-accent-strong active:bg-accent-strong;
+    @apply border-accent bg-accent text-white;
   }
 
-  .button-secondary {
-    @apply border border-line-strong bg-panel text-ink hover:bg-accent-soft active:bg-accent-soft;
-  }
-
-  .button-accent-outline {
-    @apply border-2 border-accent bg-panel text-accent hover:bg-accent-soft active:bg-accent-soft;
+  .button-primary:not(:disabled):hover {
+    @apply border-accent-strong bg-accent-strong;
   }
 
   .button-danger {
-    @apply bg-danger text-white hover:bg-danger-strong active:bg-danger-strong;
+    @apply border-danger bg-danger text-white;
+  }
+
+  .button-danger:not(:disabled):hover {
+    @apply border-danger-strong bg-danger-strong;
+  }
+
+  .button-danger-outline {
+    @apply border-rejected/50 text-rejected-ink;
+  }
+
+  .button-danger-outline:not(:disabled):hover {
+    @apply border-rejected-ink bg-rejected-soft;
+  }
+
+  .button-large {
+    @apply min-h-13 w-full text-[1.0625rem];
   }
 
   .field-input {
-    @apply block min-h-11 w-full rounded-md border border-line-strong bg-panel px-3 py-2 text-base text-ink;
+    @apply block min-h-12 w-full rounded-xl border-[1.5px] border-line-strong bg-white px-3.5 py-2.5 text-base text-ink;
   }
 
   .field-input[aria-invalid='true'] {
     @apply border-2 border-danger;
   }
 
-  .panel {
-    @apply rounded-lg border border-line bg-panel;
+  .card {
+    @apply rounded-[1.375rem] border border-line bg-panel shadow-[0_18px_40px_-28px_rgb(29_43_42/0.45)];
+  }
+
+  .section-title {
+    @apply font-display text-[1.625rem] leading-tight font-semibold tracking-tight;
+  }
+
+  .navigation {
+    @apply flex flex-wrap gap-1.5 rounded-full border border-line bg-panel/75 p-1.5;
   }
 
   .navigation-link {
-    @apply inline-flex min-h-11 items-center border-b-2 border-transparent px-3 text-sm font-medium text-ink-muted hover:text-ink;
+    @apply inline-flex min-h-11 items-center rounded-full px-[1.125rem] font-semibold text-ink-muted transition-colors duration-200;
   }
 
-  .navigation-link[aria-current='page'] {
-    @apply border-accent font-semibold text-ink;
+  .navigation-link:hover {
+    @apply bg-surface-deep text-ink;
+  }
+
+  .navigation-link[aria-current='page'],
+  .navigation-link[aria-current='page']:hover {
+    @apply bg-accent text-white;
   }
 
   .dialog-panel {
-    @apply m-auto w-[min(32rem,calc(100vw-2rem))] rounded-lg border border-line bg-panel p-6 text-ink shadow-xl;
+    @apply m-auto w-[min(32rem,calc(100vw-2rem))] rounded-[1.375rem] border border-line bg-panel p-7 text-ink shadow-2xl;
+  }
+
+  .dialog-panel h2 {
+    @apply font-display text-2xl font-semibold tracking-tight;
   }
 
   .status-marker {
-    @apply inline-block size-3 shrink-0 rounded-sm border-2;
+    @apply inline-block size-3 shrink-0 rounded-full border-2 border-current;
   }
 
   .status-marker-approved {
-    @apply border-approved bg-approved;
+    @apply bg-current;
   }
 
   .status-marker-pending {
-    @apply border-pending;
-    background: repeating-linear-gradient(
-      90deg,
-      var(--color-pending) 0 2px,
-      var(--color-pending-soft) 2px 4px
-    );
+    background: linear-gradient(90deg, currentColor 50%, transparent 50%);
   }
 
-  .status-marker-rejected {
-    @apply border-rejected bg-panel;
+  .vacation-bar {
+    @apply relative flex h-8 items-center;
+  }
+
+  .vacation-bar-approved {
+    @apply bg-approved text-white;
+  }
+
+  .vacation-bar-pending {
+    @apply border-y-2 border-dashed border-pending text-pending-ink;
+    background-image: repeating-linear-gradient(
+      135deg,
+      var(--color-pending-soft) 0 8px,
+      var(--color-pending-stripe) 8px 16px
+    );
+    background-attachment: fixed;
+  }
+
+  .vacation-bar-start {
+    @apply ml-1 rounded-l-full;
+  }
+
+  .vacation-bar-end {
+    @apply mr-1 rounded-r-full;
+  }
+
+  .vacation-bar-pending.vacation-bar-start {
+    @apply border-l-2;
+  }
+
+  .vacation-bar-pending.vacation-bar-end {
+    @apply border-r-2;
+  }
+
+  .vacation-bar-label {
+    @apply relative z-10 pl-3 text-[0.8125rem] font-bold whitespace-nowrap;
   }
 }

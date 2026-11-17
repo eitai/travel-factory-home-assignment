@@ -4,9 +4,15 @@ import {
   countDaysInclusive,
   doDateRangesOverlap,
   firstDayOfMonth,
+  formatDayWithWeekday,
+  formatMonthName,
+  formatMonthShort,
+  getDayOfMonth,
   getIsoWeekday,
+  getYear,
   isDateInPast,
   isDateRangeOrdered,
+  isWeekend,
   lastDayOfMonth,
   listDatesInRange,
 } from './timeService';
@@ -81,5 +87,23 @@ describe('months and weekdays', () => {
   it('numbers weekdays from Monday as 1 to Sunday as 7', () => {
     expect(getIsoWeekday('2026-11-16')).toBe(1);
     expect(getIsoWeekday('2026-11-22')).toBe(7);
+  });
+});
+
+describe('formatting', () => {
+  it('names the month in full and in short', () => {
+    expect(formatMonthName('2026-12-21')).toBe('December');
+    expect(formatMonthShort('2026-12-21')).toBe('Dec');
+  });
+
+  it('writes a day with its weekday', () => {
+    expect(formatDayWithWeekday('2026-12-21')).toBe('Mon 21 Dec');
+  });
+
+  it('reads the day, the year and the weekend from a date', () => {
+    expect(getDayOfMonth('2026-12-05')).toBe(5);
+    expect(getYear('2027-01-01')).toBe(2027);
+    expect(isWeekend('2026-12-19')).toBe(true);
+    expect(isWeekend('2026-12-21')).toBe(false);
   });
 });

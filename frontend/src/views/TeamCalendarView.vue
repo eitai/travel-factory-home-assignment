@@ -9,8 +9,9 @@ import {
   VacationRequestStatus,
 } from '@vacation-manager/shared';
 import DataState from '../components/DataState.vue';
+import PageHeading from '../components/PageHeading.vue';
 import TeamCalendarGrid from '../components/TeamCalendarGrid.vue';
-import { statusLabels, statusMarkerClasses } from '../services/presentationService';
+import { statusLabels, vacationBarClasses } from '../services/presentationService';
 import { readQueryText } from '../services/routeQueryService';
 import { useAppStore } from '../store';
 
@@ -31,9 +32,8 @@ const errorMessage = computed(() => store.state.teamCalendar.errorMessage);
 
 const shownMonth = computed(() => {
   const monthKey = readQueryText(route.query, 'month') ?? '';
-  const [yearText, monthText] = (
-    /^\d{4}-(0[1-9]|1[0-2])$/.test(monthKey) ? monthKey : currentMonthKey
-  ).split('-');
+  const validMonthKey = /^\d{4}-(0[1-9]|1[0-2])$/.test(monthKey) ? monthKey : currentMonthKey;
+  const [yearText, monthText] = validMonthKey.split('-');
   return { year: Number(yearText), monthIndex: Number(monthText) - 1 };
 });
 
@@ -70,33 +70,31 @@ function showCurrentMonth(): void {
 </script>
 
 <template>
-  <h1 class="text-2xl font-semibold tracking-tight">Team calendar</h1>
+  <PageHeading lead="Approved and pending vacations of the whole team, one month at a time.">
+    Who is away, <em>and when.</em>
+  </PageHeading>
 
-  <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
-    <h2 class="text-lg font-semibold" aria-live="polite">{{ monthName }}</h2>
+  <div class="mt-9 flex flex-wrap items-center justify-between gap-3">
+    <h2 class="section-title" aria-live="polite">{{ monthName }}</h2>
     <div class="flex flex-wrap gap-2">
-      <button type="button" class="button button-secondary" @click="showNeighbouringMonth(-1)">
+      <button type="button" class="button" @click="showNeighbouringMonth(-1)">
         Previous month
       </button>
-      <button
-        type="button"
-        class="button button-secondary"
-        :disabled="isCurrentMonth"
-        @click="showCurrentMonth"
-      >
+      <button type="button" class="button" :disabled="isCurrentMonth" @click="showCurrentMonth">
         This month
       </button>
-      <button type="button" class="button button-secondary" @click="showNeighbouringMonth(1)">
-        Next month
-      </button>
+      <button type="button" class="button" @click="showNeighbouringMonth(1)">Next month</button>
     </div>
   </div>
 
-  <ul class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm" aria-label="Legend">
+  <ul
+    class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-[0.9375rem] text-ink-muted"
+    aria-label="Legend"
+  >
     <li v-for="status in legendStatuses" :key="status" class="flex items-center gap-2">
       <span
-        class="status-marker size-4"
-        :class="statusMarkerClasses[status]"
+        class="vacation-bar vacation-bar-start vacation-bar-end ml-0 h-4 w-8"
+        :class="vacationBarClasses[status]"
         aria-hidden="true"
       ></span>
       {{ statusLabels[status] }}

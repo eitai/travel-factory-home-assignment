@@ -12,9 +12,10 @@ import {
 } from '@vacation-manager/shared';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import DataState from '../components/DataState.vue';
+import PageHeading from '../components/PageHeading.vue';
 import PaginationControls from '../components/PaginationControls.vue';
 import VacationRequestForm from '../components/VacationRequestForm.vue';
-import VacationRequestTable from '../components/VacationRequestTable.vue';
+import VacationRequestList from '../components/VacationRequestList.vue';
 import { readApiError } from '../services/errorService';
 import { formatDateRange, statusLabels } from '../services/presentationService';
 import { readQueryPage, readQueryText, withoutEmptyValues } from '../services/routeQueryService';
@@ -96,87 +97,86 @@ async function confirmCancellation(): Promise<void> {
 </script>
 
 <template>
-  <h1 class="text-2xl font-semibold tracking-tight">My requests</h1>
+  <PageHeading lead="Ask for days off, see where each request stands, and check who else is away.">
+    Your time off, <em>all in one place.</em>
+  </PageHeading>
 
-  <div class="mt-5">
-    <VacationRequestForm :edited-request="editedRequest" @finished="editedRequest = null" />
-  </div>
-
-  <section aria-labelledby="my-requests-heading" class="mt-8">
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <h2 id="my-requests-heading" class="text-lg font-semibold">Submitted requests</h2>
-      <div>
-        <label for="status-filter" class="mb-1 block text-sm font-medium">Show</label>
-        <select
-          id="status-filter"
-          class="field-input"
-          :value="statusFilter ?? ''"
-          @change="changeStatusFilter"
-        >
-          <option value="">All statuses</option>
-          <option v-for="status in vacationRequestStatusValues" :key="status" :value="status">
-            {{ statusLabels[status] }}
-          </option>
-        </select>
-      </div>
+  <div class="mt-9 grid items-start gap-7 lg:grid-cols-[22.5rem_1fr]">
+    <div class="lg:sticky lg:top-5">
+      <VacationRequestForm :edited-request="editedRequest" @finished="editedRequest = null" />
     </div>
 
-    <div class="mt-4" :aria-busy="isLoading">
-      <DataState
-        :is-loading="isLoading && !requestPage"
-        :error-message="errorMessage"
-        :is-empty="requestPage?.items.length === 0"
-        loading-label="Loading your requests"
-        @retry="loadRequests"
-      >
-        <template #empty>
-          <p v-if="statusFilter">
-            You have no {{ statusLabels[statusFilter].toLowerCase() }} requests. Choose another
-            status to see the rest.
-          </p>
-          <p v-else>
-            You have not requested any vacation yet. Fill in the form above to send your first
-            request.
-          </p>
-        </template>
-
-        <template v-if="requestPage">
-          <VacationRequestTable
-            :vacation-requests="requestPage.items"
-            :shows-requester="false"
-            caption="Your vacation requests"
+    <section aria-labelledby="my-requests-heading">
+      <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <h2 id="my-requests-heading" class="section-title">Submitted requests</h2>
+        <div class="w-full sm:w-48">
+          <label for="status-filter" class="mb-1 block text-sm font-semibold">Show</label>
+          <select
+            id="status-filter"
+            class="field-input"
+            :value="statusFilter ?? ''"
+            @change="changeStatusFilter"
           >
-            <template #actions="{ vacationRequest }">
-              <template v-if="canChange(vacationRequest)">
-                <button
-                  type="button"
-                  class="button button-secondary"
-                  @click="startEditing(vacationRequest)"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  class="button button-secondary"
-                  @click="requestToCancel = vacationRequest"
-                >
-                  Cancel request
-                </button>
-              </template>
-            </template>
-          </VacationRequestTable>
+            <option value="">All statuses</option>
+            <option v-for="status in vacationRequestStatusValues" :key="status" :value="status">
+              {{ statusLabels[status] }}
+            </option>
+          </select>
+        </div>
+      </div>
 
-          <PaginationControls
-            :page="requestPage.page"
-            :page-size="requestPage.pageSize"
-            :total-items="requestPage.totalItems"
-            :total-pages="requestPage.totalPages"
-            @change-page="changePage"
-          />
-        </template>
-      </DataState>
-    </div>
-  </section>
+      <div :aria-busy="isLoading">
+        <DataState
+          :is-loading="isLoading && !requestPage"
+          :error-message="errorMessage"
+          :is-empty="requestPage?.items.length === 0"
+          loading-label="Loading your requests"
+          @retry="loadRequests"
+        >
+          <template #empty>
+            <p v-if="statusFilter">
+              You have no {{ statusLabels[statusFilter].toLowerCase() }} requests. Choose another
+              status to see the rest.
+            </p>
+            <p v-else>
+              You have not requested any vacation yet. Fill in the form to send your first request.
+            </p>
+          </template>
+
+          <template v-if="requestPage">
+            <VacationRequestList
+              :vacation-requests="requestPage.items"
+              :shows-requester="false"
+              label="Your vacation requests"
+            >
+              <template #actions="{ vacationRequest }">
+                <template v-if="canChange(vacationRequest)">
+                  <button type="button" class="button" @click="startEditing(vacationRequest)">
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    class="button button-danger-outline"
+                    @click="requestToCancel = vacationRequest"
+                  >
+                    Cancel request
+                  </button>
+                </template>
+              </template>
+            </VacationRequestList>
+
+            <PaginationControls
+              :page="requestPage.page"
+              :page-size="requestPage.pageSize"
+              :total-items="requestPage.totalItems"
+              :total-pages="requestPage.totalPages"
+              @change-page="changePage"
+            />
+          </template>
+        </DataState>
+      </div>
+    </section>
+  </div>
 
   <ConfirmDialog
     :is-open="requestToCancel !== null"

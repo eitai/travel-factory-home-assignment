@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { loginSchema, validateWithSchema, type FieldErrors } from '@vacation-manager/shared';
 import FormField from '../components/FormField.vue';
+import PageHeading from '../components/PageHeading.vue';
 import { getHomeRoute } from '../router';
 import { readApiError } from '../services/errorService';
 import { readQueryText } from '../services/routeQueryService';
@@ -61,72 +62,78 @@ async function signIn(): Promise<void> {
 </script>
 
 <template>
-  <main class="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4 py-10">
-    <h1 class="text-3xl font-semibold tracking-tight">Vacation Manager</h1>
-    <p class="mt-2 text-ink-muted">
-      Sign in to request time off or to review your team's requests.
-    </p>
+  <main
+    class="mx-auto grid min-h-dvh max-w-5xl items-center gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_26rem]"
+  >
+    <div>
+      <p class="mb-6 font-display text-[1.625rem] font-medium text-accent-strong italic">
+        Vacation Manager
+      </p>
+      <PageHeading lead="Sign in to ask for days off, or to review the requests of your team.">
+        Time off, <em>without the back and forth.</em>
+      </PageHeading>
+    </div>
 
-    <p v-if="sessionExpired" role="status" class="panel mt-6 border-pending p-4 text-sm">
-      Your session ended. Sign in again to continue.
-    </p>
-
-    <form novalidate class="panel mt-6 space-y-4 p-6" @submit.prevent="signIn">
-      <FormField field-id="email" label="Email" :error-message="fieldErrors.email">
-        <template #default="{ describedBy, isInvalid }">
-          <input
-            id="email"
-            v-model="credentials.email"
-            type="email"
-            class="field-input"
-            autocomplete="username"
-            required
-            :aria-invalid="isInvalid"
-            :aria-describedby="describedBy"
-          />
-        </template>
-      </FormField>
-
-      <FormField field-id="password" label="Password" :error-message="fieldErrors.password">
-        <template #default="{ describedBy, isInvalid }">
-          <input
-            id="password"
-            v-model="credentials.password"
-            type="password"
-            class="field-input"
-            autocomplete="current-password"
-            required
-            :aria-invalid="isInvalid"
-            :aria-describedby="describedBy"
-          />
-        </template>
-      </FormField>
-
-      <p v-if="signInErrorMessage" role="alert" class="text-sm font-medium text-danger">
-        {{ signInErrorMessage }}
+    <div>
+      <p v-if="sessionExpired" role="status" class="card mb-4 border-pending p-4">
+        Your session ended. Sign in again to continue.
       </p>
 
-      <button type="submit" class="button button-primary w-full" :disabled="isSigningIn">
-        {{ isSigningIn ? 'Signing in' : 'Sign in' }}
-      </button>
-    </form>
+      <form novalidate class="card space-y-4 p-6" @submit.prevent="signIn">
+        <h2 class="section-title">Sign in</h2>
 
-    <section aria-labelledby="demo-accounts-heading" class="mt-8">
-      <h2 id="demo-accounts-heading" class="font-semibold">Demo accounts</h2>
-      <p class="mt-1 text-sm text-ink-muted">
-        Choose an account to fill in the form, then sign in.
-      </p>
-      <ul class="mt-3 flex flex-wrap gap-2">
-        <li v-for="demoAccount in demoAccounts" :key="demoAccount.email">
-          <button
-            type="button"
-            class="button button-secondary"
-            @click="fillDemoAccount(demoAccount.email)"
-          >
-            {{ demoAccount.label }}
-          </button>
-        </li>
-      </ul>
-    </section>
+        <FormField field-id="email" label="Email" :error-message="fieldErrors.email">
+          <template #default="{ describedBy, isInvalid }">
+            <input
+              id="email"
+              v-model="credentials.email"
+              type="email"
+              class="field-input"
+              autocomplete="username"
+              required
+              :aria-invalid="isInvalid"
+              :aria-describedby="describedBy"
+            />
+          </template>
+        </FormField>
+
+        <FormField field-id="password" label="Password" :error-message="fieldErrors.password">
+          <template #default="{ describedBy, isInvalid }">
+            <input
+              id="password"
+              v-model="credentials.password"
+              type="password"
+              class="field-input"
+              autocomplete="current-password"
+              required
+              :aria-invalid="isInvalid"
+              :aria-describedby="describedBy"
+            />
+          </template>
+        </FormField>
+
+        <p v-if="signInErrorMessage" role="alert" class="text-sm font-semibold text-danger">
+          {{ signInErrorMessage }}
+        </p>
+
+        <button type="submit" class="button button-primary button-large" :disabled="isSigningIn">
+          {{ isSigningIn ? 'Signing in' : 'Sign in' }}
+        </button>
+      </form>
+
+      <section aria-labelledby="demo-accounts-heading" class="mt-6 px-1">
+        <h2 id="demo-accounts-heading" class="font-bold">Demo accounts</h2>
+        <p class="mt-1 text-[0.9375rem] text-ink-muted">
+          Choose an account to fill in the form, then sign in.
+        </p>
+        <ul class="mt-3 flex flex-wrap gap-2">
+          <li v-for="demoAccount in demoAccounts" :key="demoAccount.email">
+            <button type="button" class="button" @click="fillDemoAccount(demoAccount.email)">
+              {{ demoAccount.label }}
+            </button>
+          </li>
+        </ul>
+      </section>
+    </div>
   </main>
 </template>

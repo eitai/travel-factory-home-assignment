@@ -19,22 +19,14 @@ function dismiss(notificationId: number): void {
     <div
       v-for="notification in notifications"
       :key="notification.id"
-      class="pointer-events-auto flex w-full items-start gap-3 rounded-md border bg-panel p-3 shadow-lg"
-      :class="notification.kind === 'error' ? 'border-danger' : 'border-approved'"
+      class="card pointer-events-auto flex w-full items-center gap-3 rounded-2xl p-3 pl-4"
+      :class="notification.kind === 'error' ? 'border-rejected' : 'border-accent'"
     >
-      <p class="flex-1 text-sm">
-        <span class="font-semibold">{{
-          notification.kind === 'error' ? 'Error: ' : 'Done: '
-        }}</span>
+      <p class="flex-1 text-[0.9375rem]">
+        <span class="font-bold">{{ notification.kind === 'error' ? 'Error: ' : 'Done: ' }}</span>
         {{ notification.message }}
       </p>
-      <button
-        type="button"
-        class="button button-secondary min-h-9 px-3"
-        @click="dismiss(notification.id)"
-      >
-        Dismiss
-      </button>
+      <button type="button" class="button" @click="dismiss(notification.id)">Dismiss</button>
     </div>
   </div>
 </template>
