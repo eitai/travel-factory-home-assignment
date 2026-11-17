@@ -1,0 +1,255 @@
+openapi: 3.0.3
+info:
+  title: Vacation Manager API
+  version: 1.0.0
+  description: >
+    Vacation requests for requesters and validators. Every path below is served
+    under /api/v1. Each route names its handler (x-handler) and, where input
+    must be checked, its input parser (x-inputParser). The last route is an
+    event route: it receives queue messages, never web requests.
+servers:
+  - url: /api/v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    VacationRequestInput:
+      type: object
+      required: [startDate, endDate]
+      properties:
+        startDate: { type: string, format: date, example: '2026-12-21' }
+        endDate: { type: string, format: date, example: '2026-12-24' }
+        reason: { type: string, nullable: true, maxLength: 500 }
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            fields:
+              type: object
+              additionalProperties: { type: string }
+  parameters:
+    vacationRequestId:
+      in: path
+      name: id
+      required: true
+      schema: { type: integer }
+    page:
+      in: query
+      name: page
+      schema: { type: integer, minimum: 1, default: 1 }
+    pageSize:
+      in: query
+      name: pageSize
+      schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+    status:
+      in: query
+      name: status
+      schema: { type: string, enum: [PENDING, APPROVED, REJECTED] }
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Sign in with email and password
+      security: []
+      x-handler: modules/auth/authHandlers#login
+      x-inputParser: modules/auth/authHandlers#parseLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200': { description: A token and the signed-in user }
+        '400': { description: Invalid input }
+        '401': { description: Wrong email or password }
+        '429': { description: Too many failed attempts }
+
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: The signed-in user
+      x-handler: modules/auth/authHandlers#getCurrentUser
+      responses:
+        '200': { description: The user the token belongs to }
+        '401': { description: Missing or invalid token }
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Requesters a validator can filter by
+      description: 'Permission: read user list (validators).'
+      x-handler: modules/users/userHandlers#listUsers
+      responses:
+        '200': { description: Id and name of every requester }
+        '403': { description: Not permitted }
+
+  /users/me/vacation-requests:
+    get:
+      tags: [Vacation requests]
+      summary: The signed-in requester's own requests
+      description: 'Permission: read own requests (requesters).'
+      x-handler: modules/vacationRequests/vacationRequestHandlers#listMine
+      x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseListMyVacationRequests
+      parameters:
+        - $ref: '#/components/parameters/status'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '200': { description: One page of requests with paging totals }
+
+  /vacation-requests:
+    get:
+      tags: [Vacation requests]
+      summary: Every request, for review
+      description: 'Permission: read all requests (validators).'
+      x-handler: modules/vacationRequests/vacationRequestHandlers#listAll
+      x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseListAllVacationRequests
+      parameters:
+        - $ref: '#/components/parameters/status'
+        - in: query
+          name: userId
+          schema: { type: integer }
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '200': { description: One page of requests with paging totals }
+        '403': { description: Not permitted }
+    post:
+      tags: [Vacation requests]
+      summary: Submit a vacation request
+      description: 'Permission: create request (requesters).'
+      x-handler: modules/vacationRequests/vacationRequestHandlers#submit
+      x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseSubmitVacationRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VacationRequestInput' }
+      responses:
+        '201': { description: The created request, with status PENDING }
+        '400': { description: Invalid dates, or a start date in the past }
+        '409': { description: The dates overlap another request of the same user }
+
+  /vacation-requests/:id:
+    put:
+      tags: [Vacation requests]
+      summary: Edit a pending request
+      description: 'Permission: update own request (requesters).'
+      x-handler: modules/vacationRequests/vacationRequestHandlers#update
+      x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseUpdateVacationRequest
+      parameters:
+        - $ref: '#/components/parameters/vacationRequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VacationRequestInput' }
+      responses:
+        '200': { description: The updated request }
+        '403': { description: The request belongs to someone else }
+        '409': { description: The request is no longer pending, or the dates overlap }
+    delete:
+      tags: [Vacation requests]
+      summary: Cancel a pending request
+      description: 'Permission: cancel own request (requesters).'
+      x-handler: modules/vacationRequests/vacationRequestHandlers#cancel
+      x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseVacationRequestId
+      parameters:
+        - $ref: '#/components/parameters/vacationRequestId'
+      responses:
+        '204': { description: Cancelled }
+        '409': { description: The request is no longer pending }
+
+  /vacation-requests/:id/approve:
+    post:
+      tags: [Review]
+      summary: Approve a pending request
+      description: 'Permission: approve (validators).'
+      x-handler: modules/vacationRequests/vacationRequestHandlers#approve
+      x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseVacationRequestId
+      parameters:
+        - $ref: '#/components/parameters/vacationRequestId'
+      responses:
+        '200': { description: The approved request }
+        '409': { description: The request is no longer pending }
+
+  /vacation-requests/:id/reject:
+    post:
+      tags: [Review]
+      summary: Reject a pending request with a comment
+      description: 'Permission: reject (validators).'
+      x-handler: modules/vacationRequests/vacationRequestHandlers#reject
+      x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseRejectVacationRequest
+      parameters:
+        - $ref: '#/components/parameters/vacationRequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [comment]
+              properties:
+                comment: { type: string, minLength: 1, maxLength: 500 }
+      responses:
+        '200': { description: The rejected request }
+        '400': { description: The comment is missing }
+        '409': { description: The request is no longer pending }
+
+  /vacation-requests/:id/history:
+    get:
+      tags: [Vacation requests]
+      summary: Who did what to a request, and when
+      description: 'Permission: read history (own requests for requesters, all for validators).'
+      x-handler: modules/requestHistory/requestHistoryHandlers#getHistory
+      x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseVacationRequestId
+      parameters:
+        - $ref: '#/components/parameters/vacationRequestId'
+      responses:
+        '200': { description: History entries, oldest first }
+
+  /team-calendar:
+    get:
+      tags: [Team calendar]
+      summary: Approved and pending vacations per person
+      description: 'Permission: read team calendar (both roles). Reasons and comments are not included.'
+      x-handler: modules/teamCalendar/teamCalendarHandlers#getCalendar
+      x-inputParser: modules/teamCalendar/teamCalendarHandlers#parseTeamCalendarQuery
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        '200': { description: One entry per requester with their vacations in the period }
+
+  /events/vacation-request-changed:
+    put:
+      tags: [Events]
+      summary: 'Event: a request was submitted, updated, approved or rejected'
+      description: >
+        Internal. Receives queue messages published after a change is saved and
+        records one history entry. Calls over HTTP are refused.
+      security: []
+      x-handler: modules/requestHistory/requestHistoryHandlers#recordVacationRequestChanged
+      x-inputParser: modules/requestHistory/requestHistoryHandlers#parseVacationRequestChangedEvent
+      responses:
+        '200': { description: Recorded }
