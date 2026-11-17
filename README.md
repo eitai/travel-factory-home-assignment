@@ -1,6 +1,6 @@
 # Vacation Manager
 
-A web application for managing vacation requests, with two interfaces:
+Home assignment for the fullstack developer position at Travel Factory: a web application for managing vacation requests, with two interfaces:
 
 - **Requester:** submit a vacation request, follow its status, edit or cancel it while it is pending.
 - **Validator:** review every request, filter and page through them, approve or reject with a comment.
@@ -9,11 +9,27 @@ Both roles share a team calendar that shows who is away and when.
 
 **Stack:** Vue 3, Vue Router, Vuex, Axios and Tailwind CSS on the frontend. Node.js, Express, the Common Event Framework, TypeORM and PostgreSQL on the backend. TypeScript everywhere.
 
+## Screenshots
+
+**Requester: request form with the date picker open, and the submitted requests**
+
+![The requester page with the date picker open](docs/screenshots/date-picker.png)
+
+**Validator: review dashboard**
+
+![The review dashboard with pending requests](docs/screenshots/review-dashboard.png)
+
+**Both roles: team calendar**
+
+![The team calendar for one month](docs/screenshots/team-calendar.png)
+
 ## Run it
 
 The only requirement is Docker.
 
 ```bash
+git clone https://github.com/eitai/travel-factory-home-assignment.git
+cd travel-factory-home-assignment
 docker compose up --build
 ```
 
