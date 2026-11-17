@@ -21,6 +21,9 @@ import { formatDateRange, statusLabels } from '../services/presentationService';
 import { readQueryPage, readQueryText, withoutEmptyValues } from '../services/routeQueryService';
 import { useAppStore } from '../store';
 
+const FORM_HEADING_ID = 'vacation-form-heading';
+const LIST_HEADING_ID = 'my-requests-heading';
+
 const store = useAppStore();
 const route = useRoute();
 const router = useRouter();
@@ -101,80 +104,91 @@ async function confirmCancellation(): Promise<void> {
     Your time off, <em>all in one place.</em>
   </PageHeading>
 
-  <div class="mt-9 grid items-start gap-7 lg:grid-cols-[22.5rem_1fr]">
-    <div class="lg:sticky lg:top-5">
-      <VacationRequestForm :edited-request="editedRequest" @finished="editedRequest = null" />
+  <div class="mt-9 grid gap-x-7 gap-y-4 lg:grid-cols-[22.5rem_1fr]">
+    <h2 :id="FORM_HEADING_ID" class="section-title self-end lg:col-start-1 lg:row-start-1">
+      {{ editedRequest ? 'Edit your request' : 'Request a vacation' }}
+    </h2>
+
+    <VacationRequestForm
+      class="self-start lg:col-start-1 lg:row-start-2"
+      :edited-request="editedRequest"
+      :labelled-by="FORM_HEADING_ID"
+      @finished="editedRequest = null"
+    />
+
+    <div
+      class="mt-6 flex flex-wrap items-end justify-between gap-3 lg:col-start-2 lg:row-start-1 lg:mt-0"
+    >
+      <h2 :id="LIST_HEADING_ID" class="section-title">Submitted requests</h2>
+      <div class="w-full sm:w-48">
+        <label for="status-filter" class="mb-1 block text-sm font-semibold">Show</label>
+        <select
+          id="status-filter"
+          class="field-input"
+          :value="statusFilter ?? ''"
+          @change="changeStatusFilter"
+        >
+          <option value="">All statuses</option>
+          <option v-for="status in vacationRequestStatusValues" :key="status" :value="status">
+            {{ statusLabels[status] }}
+          </option>
+        </select>
+      </div>
     </div>
 
-    <section aria-labelledby="my-requests-heading">
-      <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <h2 id="my-requests-heading" class="section-title">Submitted requests</h2>
-        <div class="w-full sm:w-48">
-          <label for="status-filter" class="mb-1 block text-sm font-semibold">Show</label>
-          <select
-            id="status-filter"
-            class="field-input"
-            :value="statusFilter ?? ''"
-            @change="changeStatusFilter"
+    <section
+      :aria-labelledby="LIST_HEADING_ID"
+      :aria-busy="isLoading"
+      class="min-w-0 lg:col-start-2 lg:row-start-2"
+    >
+      <DataState
+        :is-loading="isLoading && !requestPage"
+        :error-message="errorMessage"
+        :is-empty="requestPage?.items.length === 0"
+        loading-label="Loading your requests"
+        @retry="loadRequests"
+      >
+        <template #empty>
+          <p v-if="statusFilter">
+            You have no {{ statusLabels[statusFilter].toLowerCase() }} requests. Choose another
+            status to see the rest.
+          </p>
+          <p v-else>
+            You have not requested any vacation yet. Fill in the form to send your first request.
+          </p>
+        </template>
+
+        <template v-if="requestPage">
+          <VacationRequestList
+            :vacation-requests="requestPage.items"
+            :shows-requester="false"
+            label="Your vacation requests"
           >
-            <option value="">All statuses</option>
-            <option v-for="status in vacationRequestStatusValues" :key="status" :value="status">
-              {{ statusLabels[status] }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div :aria-busy="isLoading">
-        <DataState
-          :is-loading="isLoading && !requestPage"
-          :error-message="errorMessage"
-          :is-empty="requestPage?.items.length === 0"
-          loading-label="Loading your requests"
-          @retry="loadRequests"
-        >
-          <template #empty>
-            <p v-if="statusFilter">
-              You have no {{ statusLabels[statusFilter].toLowerCase() }} requests. Choose another
-              status to see the rest.
-            </p>
-            <p v-else>
-              You have not requested any vacation yet. Fill in the form to send your first request.
-            </p>
-          </template>
-
-          <template v-if="requestPage">
-            <VacationRequestList
-              :vacation-requests="requestPage.items"
-              :shows-requester="false"
-              label="Your vacation requests"
-            >
-              <template #actions="{ vacationRequest }">
-                <template v-if="canChange(vacationRequest)">
-                  <button type="button" class="button" @click="startEditing(vacationRequest)">
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    class="button button-danger-outline"
-                    @click="requestToCancel = vacationRequest"
-                  >
-                    Cancel request
-                  </button>
-                </template>
+            <template #actions="{ vacationRequest }">
+              <template v-if="canChange(vacationRequest)">
+                <button type="button" class="button" @click="startEditing(vacationRequest)">
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="button button-danger-outline"
+                  @click="requestToCancel = vacationRequest"
+                >
+                  Cancel request
+                </button>
               </template>
-            </VacationRequestList>
+            </template>
+          </VacationRequestList>
 
-            <PaginationControls
-              :page="requestPage.page"
-              :page-size="requestPage.pageSize"
-              :total-items="requestPage.totalItems"
-              :total-pages="requestPage.totalPages"
-              @change-page="changePage"
-            />
-          </template>
-        </DataState>
-      </div>
+          <PaginationControls
+            :page="requestPage.page"
+            :page-size="requestPage.pageSize"
+            :total-items="requestPage.totalItems"
+            :total-pages="requestPage.totalPages"
+            @change-page="changePage"
+          />
+        </template>
+      </DataState>
     </section>
   </div>
 

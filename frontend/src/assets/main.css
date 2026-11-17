@@ -205,3 +205,38 @@
     @apply relative z-10 pl-3 text-[0.8125rem] font-bold whitespace-nowrap;
   }
 }
+
+@layer components {
+  .field-input-compact {
+    @apply min-h-11 py-1.5;
+  }
+
+  .date-picker-popover {
+    @apply absolute inset-x-0 top-full z-30 mt-1.5 rounded-2xl border border-line bg-panel py-2 shadow-[0_18px_40px_-18px_rgb(29_43_42/0.55)];
+  }
+
+  .date-picker-caret {
+    @apply size-2.5 shrink-0 -translate-y-0.5 rotate-45 border-r-2 border-b-2 border-ink-muted;
+  }
+
+  .date-picker-day {
+    @apply grid h-11 w-full place-items-center rounded-full text-[0.9375rem] font-medium tabular-nums transition-colors duration-150;
+  }
+
+  .date-picker-day:not(:disabled):hover {
+    @apply bg-accent-soft;
+  }
+
+  .date-picker-day:disabled {
+    @apply text-ink-muted opacity-45;
+  }
+
+  .date-picker-day-today {
+    box-shadow: inset 0 0 0 2px var(--color-sun);
+  }
+
+  .date-picker-day-selected,
+  .date-picker-day-selected:not(:disabled):hover {
+    @apply bg-accent font-bold text-white;
+  }
+}

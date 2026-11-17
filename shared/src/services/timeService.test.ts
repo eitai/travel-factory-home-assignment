@@ -1,20 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import {
   addDays,
+  addMonths,
   countDaysInclusive,
+  createIsoDate,
   doDateRangesOverlap,
   firstDayOfMonth,
   formatDayWithWeekday,
+  formatLongDate,
   formatMonthName,
   formatMonthShort,
   getDayOfMonth,
   getIsoWeekday,
+  getMonthIndex,
   getYear,
   isDateInPast,
   isDateRangeOrdered,
   isWeekend,
   lastDayOfMonth,
   listDatesInRange,
+  listMonthNames,
+  listWeekdayNames,
 } from './timeService';
 
 const TODAY = '2026-11-17';
@@ -105,5 +111,46 @@ describe('formatting', () => {
     expect(getYear('2027-01-01')).toBe(2027);
     expect(isWeekend('2026-12-19')).toBe(true);
     expect(isWeekend('2026-12-21')).toBe(false);
+  });
+});
+
+describe('month arithmetic', () => {
+  it('builds a date from its parts', () => {
+    expect(createIsoDate(2027, 0, 5)).toBe('2027-01-05');
+    expect(getMonthIndex('2027-01-05')).toBe(0);
+  });
+
+  it('moves by whole months across a year end', () => {
+    expect(addMonths('2026-12-15', 1)).toBe('2027-01-15');
+    expect(addMonths('2027-01-15', -1)).toBe('2026-12-15');
+    expect(addMonths('2026-11-17', 14)).toBe('2028-01-17');
+  });
+
+  it('keeps the day inside a shorter month', () => {
+    expect(addMonths('2027-01-31', 1)).toBe('2027-02-28');
+    expect(addMonths('2028-01-31', 1)).toBe('2028-02-29');
+  });
+});
+
+describe('names for calendars', () => {
+  it('lists the twelve months in order', () => {
+    const monthNames = listMonthNames();
+
+    expect(monthNames).toHaveLength(12);
+    expect(monthNames[0]).toBe('January');
+    expect(monthNames[11]).toBe('December');
+  });
+
+  it('lists the weekdays starting on Monday', () => {
+    const weekdayNames = listWeekdayNames();
+
+    expect(weekdayNames).toHaveLength(7);
+    expect(weekdayNames[0]).toEqual({ short: 'Mon', long: 'Monday' });
+    expect(weekdayNames[6]).toEqual({ short: 'Sun', long: 'Sunday' });
+  });
+
+  it('writes a date in full, with its weekday', () => {
+    expect(formatLongDate('2026-12-21')).toContain('Monday');
+    expect(formatLongDate('2026-12-21')).toContain('21 December 2026');
   });
 });

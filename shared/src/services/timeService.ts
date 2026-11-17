@@ -133,3 +133,53 @@ export function formatDayWithWeekday(isoDate: IsoDate, locale = 'en-GB'): string
 export function getYear(isoDate: IsoDate): number {
   return toUtcDate(isoDate).getUTCFullYear();
 }
+
+const MONTHS_PER_YEAR = 12;
+const DAYS_PER_WEEK = 7;
+const A_MONDAY: IsoDate = '2001-01-01';
+
+export function createIsoDate(year: number, monthIndex: number, dayOfMonth: number): IsoDate {
+  return `${year}-${padToTwoDigits(monthIndex + 1)}-${padToTwoDigits(dayOfMonth)}`;
+}
+
+export function getMonthIndex(isoDate: IsoDate): number {
+  return toUtcDate(isoDate).getUTCMonth();
+}
+
+export function addMonths(isoDate: IsoDate, monthCount: number): IsoDate {
+  const monthsSinceYearZero =
+    getYear(isoDate) * MONTHS_PER_YEAR + getMonthIndex(isoDate) + monthCount;
+  const year = Math.floor(monthsSinceYearZero / MONTHS_PER_YEAR);
+  const monthIndex = monthsSinceYearZero % MONTHS_PER_YEAR;
+  const lastDayNumber = getDayOfMonth(lastDayOfMonth(year, monthIndex));
+  return createIsoDate(year, monthIndex, Math.min(getDayOfMonth(isoDate), lastDayNumber));
+}
+
+export function listMonthNames(locale = 'en-GB'): string[] {
+  return Array.from({ length: MONTHS_PER_YEAR }, (_unused, monthIndex) =>
+    formatMonthName(createIsoDate(2001, monthIndex, 1), locale),
+  );
+}
+
+export interface WeekdayName {
+  short: string;
+  long: string;
+}
+
+export function listWeekdayNames(locale = 'en-GB'): WeekdayName[] {
+  const longFormat = new Intl.DateTimeFormat(locale, { weekday: 'long', timeZone: 'UTC' });
+  return Array.from({ length: DAYS_PER_WEEK }, (_unused, dayOffset) => {
+    const date = addDays(A_MONDAY, dayOffset);
+    return { short: formatWeekday(date, locale), long: longFormat.format(toUtcDate(date)) };
+  });
+}
+
+export function formatLongDate(isoDate: IsoDate, locale = 'en-GB'): string {
+  return new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(toUtcDate(isoDate));
+}

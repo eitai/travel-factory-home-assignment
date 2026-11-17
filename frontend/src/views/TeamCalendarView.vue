@@ -2,6 +2,7 @@
 import { computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
+  addMonths,
   firstDayOfMonth,
   formatMonth,
   lastDayOfMonth,
@@ -15,7 +16,6 @@ import { statusLabels, vacationBarClasses } from '../services/presentationServic
 import { readQueryText } from '../services/routeQueryService';
 import { useAppStore } from '../store';
 
-const MONTHS_PER_YEAR = 12;
 const legendStatuses = [VacationRequestStatus.Approved, VacationRequestStatus.Pending];
 
 const store = useAppStore();
@@ -50,18 +50,9 @@ function loadCalendar(): void {
 
 watch([firstDay, lastDay], loadCalendar, { immediate: true });
 
-function showMonth(year: number, monthIndex: number): void {
-  const monthKey = firstDayOfMonth(year, monthIndex).slice(0, 7);
-  void router.push({ query: monthKey === currentMonthKey ? {} : { month: monthKey } });
-}
-
 function showNeighbouringMonth(monthOffset: number): void {
-  const monthsSinceYearZero =
-    shownMonth.value.year * MONTHS_PER_YEAR + shownMonth.value.monthIndex + monthOffset;
-  showMonth(
-    Math.floor(monthsSinceYearZero / MONTHS_PER_YEAR),
-    monthsSinceYearZero % MONTHS_PER_YEAR,
-  );
+  const monthKey = addMonths(firstDay.value, monthOffset).slice(0, 7);
+  void router.push({ query: monthKey === currentMonthKey ? {} : { month: monthKey } });
 }
 
 function showCurrentMonth(): void {
