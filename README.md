@@ -103,6 +103,7 @@ The web app reads one optional setting, `VITE_API_URL`. It defaults to `http://l
 **Requester**
 
 - Request form with first day, last day and an optional reason. The vacation length is shown while typing.
+- Dates are chosen with one reusable date picker. It opens as wide as its field, has month and year dropdowns, greys out days that cannot be chosen, and works with the keyboard (arrow keys, Page Up and Page Down, Enter, Escape).
 - The form is checked in the browser with the same rules the API uses, and API rule errors appear next to the field they belong to.
 - Own requests with a status filter and paging. A rejected request shows the validator's comment.
 - Edit or cancel a request while it is pending.
@@ -280,7 +281,7 @@ docker compose up -d db
 npm test
 ```
 
-- **Unit tests (28):** date functions, vacation rules, request schemas and the permission policy.
+- **Unit tests (34):** date functions, vacation rules, request schemas and the permission policy.
 - **API tests (59):** Supertest against the real Express app and a PostgreSQL test database. They cover every business rule, every permission, paging and filters, the history events, and two concurrency cases (two identical submissions, two decisions on one request).
 - The test database (`vacation_manager_test`) is created and migrated on the first run.
 
