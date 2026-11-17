@@ -1,0 +1,37 @@
+{
+  "name": "vacation-manager",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vacation request management: requester and validator interfaces",
+  "workspaces": [
+    "shared",
+    "backend"
+  ],
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "setup": "npm run db:migrate -w backend && npm run db:seed -w backend",
+    "dev": "concurrently --names api,web --prefix-colors blue,green \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "codegen": "npm run codegen -w backend",
+    "test": "vitest run",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "concurrently": "^10.0.7",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.12.1",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.73.0",
+    "vitest": "^5.1.0"
+  }
+}
