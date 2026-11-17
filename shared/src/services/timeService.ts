@@ -94,3 +94,17 @@ export function formatDateTime(isoTimestamp: string, locale = 'en-GB'): string {
     minute: '2-digit',
   }).format(new Date(isoTimestamp));
 }
+
+export function formatWeekday(isoDate: IsoDate, locale = 'en-GB'): string {
+  return new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(
+    toUtcDate(isoDate),
+  );
+}
+
+export function getDayOfMonth(isoDate: IsoDate): number {
+  return toUtcDate(isoDate).getUTCDate();
+}
+
+export function isWeekend(isoDate: IsoDate): boolean {
+  return getIsoWeekday(isoDate) >= 6;
+}
