@@ -120,6 +120,14 @@ The web app reads one optional setting, `VITE_API_URL`. It defaults to `http://l
 - Filters, page number and calendar month are kept in the address bar, so links can be shared and the Back button works.
 - Every list has loading, empty and error states. The app works with the keyboard alone and on a phone.
 
+## Design
+
+- A warm, calm look for a tool about time off: sand background with a soft sun and sea glow, and sea green as the single accent.
+- Headings use Fraunces, a soft serif, and the interface text uses Figtree. Both fonts are bundled with the app, so nothing is loaded from a font CDN.
+- Each request is a card with its dates shown as calendar leaves. The team calendar draws each vacation as one bar across its days.
+- Status never depends on colour alone. Every status has a label and its own marker shape, and pending days in the calendar are hatched.
+- Text contrast meets WCAG AA, and every control is at least 44 pixels tall.
+
 ## Architecture
 
 ```
@@ -272,7 +280,7 @@ docker compose up -d db
 npm test
 ```
 
-- **Unit tests (25):** date functions, vacation rules, request schemas and the permission policy.
+- **Unit tests (28):** date functions, vacation rules, request schemas and the permission policy.
 - **API tests (59):** Supertest against the real Express app and a PostgreSQL test database. They cover every business rule, every permission, paging and filters, the history events, and two concurrency cases (two identical submissions, two decisions on one request).
 - The test database (`vacation_manager_test`) is created and migrated on the first run.
 
