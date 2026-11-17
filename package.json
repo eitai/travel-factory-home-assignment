@@ -5,7 +5,8 @@
   "description": "Vacation request management: requester and validator interfaces",
   "workspaces": [
     "shared",
-    "backend"
+    "backend",
+    "frontend"
   ],
   "engines": {
     "node": ">=22.13.0"

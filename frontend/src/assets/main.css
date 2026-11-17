@@ -1,0 +1,132 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --color-surface: #faf9f7;
+  --color-panel: #ffffff;
+  --color-line: #e7e5e4;
+  --color-line-strong: #78716c;
+  --color-ink: #1c1917;
+  --color-ink-muted: #57534e;
+
+  --color-accent: #1e3a5f;
+  --color-accent-strong: #162c49;
+  --color-accent-soft: #e6edf5;
+
+  --color-danger: #b91c1c;
+  --color-danger-strong: #991b1b;
+
+  --color-approved: #15803d;
+  --color-approved-soft: #dcfce7;
+  --color-approved-ink: #14532d;
+  --color-pending: #b45309;
+  --color-pending-soft: #fef3c7;
+  --color-pending-ink: #78350f;
+  --color-rejected: #b91c1c;
+  --color-rejected-soft: #fee2e2;
+  --color-rejected-ink: #7f1d1d;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-ink antialiased;
+  }
+
+  a[href],
+  button:not(:disabled),
+  select:not(:disabled),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  dialog::backdrop {
+    background: rgb(28 25 23 / 0.5);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
+
+@layer components {
+  .button {
+    @apply inline-flex min-h-11 items-center justify-center rounded-md px-4 text-sm font-semibold transition-colors disabled:opacity-60;
+  }
+
+  .button-primary {
+    @apply bg-accent text-white hover:bg-accent-strong active:bg-accent-strong;
+  }
+
+  .button-secondary {
+    @apply border border-line-strong bg-panel text-ink hover:bg-accent-soft active:bg-accent-soft;
+  }
+
+  .button-accent-outline {
+    @apply border-2 border-accent bg-panel text-accent hover:bg-accent-soft active:bg-accent-soft;
+  }
+
+  .button-danger {
+    @apply bg-danger text-white hover:bg-danger-strong active:bg-danger-strong;
+  }
+
+  .field-input {
+    @apply block min-h-11 w-full rounded-md border border-line-strong bg-panel px-3 py-2 text-base text-ink;
+  }
+
+  .field-input[aria-invalid='true'] {
+    @apply border-2 border-danger;
+  }
+
+  .panel {
+    @apply rounded-lg border border-line bg-panel;
+  }
+
+  .navigation-link {
+    @apply inline-flex min-h-11 items-center border-b-2 border-transparent px-3 text-sm font-medium text-ink-muted hover:text-ink;
+  }
+
+  .navigation-link[aria-current='page'] {
+    @apply border-accent font-semibold text-ink;
+  }
+
+  .dialog-panel {
+    @apply m-auto w-[min(32rem,calc(100vw-2rem))] rounded-lg border border-line bg-panel p-6 text-ink shadow-xl;
+  }
+
+  .status-marker {
+    @apply inline-block size-3 shrink-0 rounded-sm border-2;
+  }
+
+  .status-marker-approved {
+    @apply border-approved bg-approved;
+  }
+
+  .status-marker-pending {
+    @apply border-pending;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--color-pending) 0 2px,
+      var(--color-pending-soft) 2px 4px
+    );
+  }
+
+  .status-marker-rejected {
+    @apply border-rejected bg-panel;
+  }
+}
