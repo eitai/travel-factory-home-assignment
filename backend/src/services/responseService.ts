@@ -9,22 +9,24 @@ export interface StructuredResult {
   headers?: Record<string, string | number | boolean>;
 }
 
-export function isStructuredResult(result: unknown): result is StructuredResult {
-  return typeof result === 'object' && result !== null && 'statusCode' in result;
+export function isStructuredResult(possibleResult: unknown): possibleResult is StructuredResult {
+  return (
+    typeof possibleResult === 'object' && possibleResult !== null && 'statusCode' in possibleResult
+  );
 }
 
-export function sendHandlerResult(response: Response, result: unknown): void {
-  if (!isStructuredResult(result)) {
-    response.status(200).json(result ?? {});
+export function sendHandlerResult(response: Response, handlerResult: unknown): void {
+  if (!isStructuredResult(handlerResult)) {
+    response.status(200).json(handlerResult ?? {});
     return;
   }
-  if (result.statusCode === NO_CONTENT_STATUS) {
+  if (handlerResult.statusCode === NO_CONTENT_STATUS) {
     response.status(NO_CONTENT_STATUS).end();
     return;
   }
-  const contentType = result.headers?.['Content-Type'] ?? DEFAULT_CONTENT_TYPE;
+  const contentType = handlerResult.headers?.['Content-Type'] ?? DEFAULT_CONTENT_TYPE;
   response
-    .status(result.statusCode)
+    .status(handlerResult.statusCode)
     .type(String(contentType))
-    .send(result.body ?? '');
+    .send(handlerResult.body ?? '');
 }

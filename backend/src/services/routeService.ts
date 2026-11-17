@@ -13,14 +13,14 @@ export interface Actor {
 }
 
 export interface AnonymousContext {
-  event: CommonEvent;
+  commonEvent: CommonEvent;
 }
 
 export interface RequestContext extends AnonymousContext, Actor {}
 
-export type InputParser<Input = unknown> = (event: CommonEvent) => Input;
+export type InputParser<Input = unknown> = (commonEvent: CommonEvent) => Input;
 
-type Handle<Input, Context> = (input: Input, context: Context) => Promise<unknown>;
+type HandlerFunction<Input, Context> = (input: Input, context: Context) => Promise<unknown>;
 
 export interface RouteHandler {
   (input: unknown, context: RequestContext | AnonymousContext): Promise<unknown>;
@@ -29,33 +29,39 @@ export interface RouteHandler {
 
 function withAccess<Input, Context>(
   access: RouteAccess,
-  handle: Handle<Input, Context>,
+  handlerFunction: HandlerFunction<Input, Context>,
 ): RouteHandler {
-  return Object.assign(handle as Handle<unknown, unknown>, { access });
+  return Object.assign(handlerFunction as HandlerFunction<unknown, unknown>, { access });
 }
 
-export function publicRoute<Input>(handle: Handle<Input, AnonymousContext>): RouteHandler {
-  return withAccess({ kind: 'public' }, handle);
+export function publicRoute<Input>(
+  handlerFunction: HandlerFunction<Input, AnonymousContext>,
+): RouteHandler {
+  return withAccess({ kind: 'public' }, handlerFunction);
 }
 
-export function authenticatedRoute<Input>(handle: Handle<Input, RequestContext>): RouteHandler {
-  return withAccess({ kind: 'authenticated' }, handle);
+export function authenticatedRoute<Input>(
+  handlerFunction: HandlerFunction<Input, RequestContext>,
+): RouteHandler {
+  return withAccess({ kind: 'authenticated' }, handlerFunction);
 }
 
 export function protectedRoute<Input>(
   permission: Permission,
-  handle: Handle<Input, RequestContext>,
+  handlerFunction: HandlerFunction<Input, RequestContext>,
 ): RouteHandler {
-  return withAccess({ kind: 'permission', permission }, handle);
+  return withAccess({ kind: 'permission', permission }, handlerFunction);
 }
 
-export function internalRoute<Input>(handle: Handle<Input, AnonymousContext>): RouteHandler {
-  return withAccess({ kind: 'internal' }, handle);
+export function internalRoute<Input>(
+  handlerFunction: HandlerFunction<Input, AnonymousContext>,
+): RouteHandler {
+  return withAccess({ kind: 'internal' }, handlerFunction);
 }
 
-export function readRouteAccess(candidate: unknown): RouteAccess | undefined {
-  if (typeof candidate === 'function' && 'access' in candidate) {
-    return candidate.access as RouteAccess;
+export function readRouteAccess(possibleRouteHandler: unknown): RouteAccess | undefined {
+  if (typeof possibleRouteHandler === 'function' && 'access' in possibleRouteHandler) {
+    return possibleRouteHandler.access as RouteAccess;
   }
   return undefined;
 }

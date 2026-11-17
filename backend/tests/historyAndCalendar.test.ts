@@ -4,7 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { VacationRequestEventType, VacationRequestStatus } from '@vacation-manager/shared';
 import {
   apiPath,
-  bearer,
+  authorizationHeader,
   createRequester,
   createValidator,
   daysFromToday,
@@ -36,7 +36,7 @@ afterAll(stopTestApp);
 function readHistory(user: TestUser, vacationRequestId: number) {
   return request(app)
     .get(apiPath(`/vacation-requests/${vacationRequestId}/history`))
-    .set(bearer(user));
+    .set(authorizationHeader(user));
 }
 
 describe('request history, recorded from events', () => {
@@ -44,11 +44,11 @@ describe('request history, recorded from events', () => {
     const vacationRequest = await submitVacation(app, requester, 10, 12);
     await request(app)
       .put(apiPath(`/vacation-requests/${vacationRequest.id}`))
-      .set(bearer(requester))
+      .set(authorizationHeader(requester))
       .send({ startDate: daysFromToday(11), endDate: daysFromToday(13) });
     await request(app)
       .post(apiPath(`/vacation-requests/${vacationRequest.id}/approve`))
-      .set(bearer(validator));
+      .set(authorizationHeader(validator));
 
     const response = await readHistory(requester, vacationRequest.id);
 
@@ -72,7 +72,7 @@ describe('request history, recorded from events', () => {
     const vacationRequest = await submitVacation(app, requester, 10, 12);
     await request(app)
       .post(apiPath(`/vacation-requests/${vacationRequest.id}/reject`))
-      .set(bearer(validator))
+      .set(authorizationHeader(validator))
       .send({ comment: 'Release week' });
 
     const response = await readHistory(validator, vacationRequest.id);
@@ -89,7 +89,7 @@ describe('request history, recorded from events', () => {
     const vacationRequest = await submitVacation(app, requester, 10, 12);
     await request(app)
       .post(apiPath(`/vacation-requests/${vacationRequest.id}/approve`))
-      .set(bearer(requester));
+      .set(authorizationHeader(requester));
 
     const response = await readHistory(requester, vacationRequest.id);
 
@@ -111,23 +111,23 @@ describe('request history, recorded from events', () => {
 
     const response = await request(app)
       .put(apiPath('/events/vacation-request-changed'))
-      .set(bearer(validator))
+      .set(authorizationHeader(validator))
       .send({
         type: VacationRequestEventType.Approved,
         vacationRequestId: vacationRequest.id,
         actorUserId: validator.id,
         details: null,
       });
-    const history = await readHistory(requester, vacationRequest.id);
+    const historyResponse = await readHistory(requester, vacationRequest.id);
 
     expect(response.status).toBe(404);
-    expect(history.body).toHaveLength(1);
+    expect(historyResponse.body).toHaveLength(1);
   });
 });
 
 describe('the team calendar', () => {
   function readCalendar(user: TestUser, query: object) {
-    return request(app).get(apiPath('/team-calendar')).query(query).set(bearer(user));
+    return request(app).get(apiPath('/team-calendar')).query(query).set(authorizationHeader(user));
   }
 
   it('shows approved and pending vacations of every requester, without reasons', async () => {
@@ -136,10 +136,10 @@ describe('the team calendar', () => {
     const rejectedRequest = await submitVacation(app, otherRequester, 20, 21);
     await request(app)
       .post(apiPath(`/vacation-requests/${approvedRequest.id}/approve`))
-      .set(bearer(validator));
+      .set(authorizationHeader(validator));
     await request(app)
       .post(apiPath(`/vacation-requests/${rejectedRequest.id}/reject`))
-      .set(bearer(validator))
+      .set(authorizationHeader(validator))
       .send({ comment: 'Not possible' });
 
     const response = await readCalendar(requester, {

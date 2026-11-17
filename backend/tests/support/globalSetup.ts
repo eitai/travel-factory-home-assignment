@@ -8,15 +8,16 @@ async function createTestDatabaseIfMissing(testDatabaseUrl: string): Promise<voi
   const maintenanceUrl = new URL(testDatabaseUrl);
   maintenanceUrl.pathname = '/postgres';
 
-  const client = new Client({ connectionString: maintenanceUrl.toString() });
-  await client.connect();
-  const existingDatabase = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [
-    databaseName,
-  ]);
+  const maintenanceClient = new Client({ connectionString: maintenanceUrl.toString() });
+  await maintenanceClient.connect();
+  const existingDatabase = await maintenanceClient.query(
+    'SELECT 1 FROM pg_database WHERE datname = $1',
+    [databaseName],
+  );
   if (existingDatabase.rowCount === 0) {
-    await client.query(`CREATE DATABASE "${databaseName}"`);
+    await maintenanceClient.query(`CREATE DATABASE "${databaseName}"`);
   }
-  await client.end();
+  await maintenanceClient.end();
 }
 
 export async function setup(): Promise<void> {

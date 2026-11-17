@@ -14,8 +14,8 @@ export function createJwtStrategy(): JwtStrategy {
       issuer: TOKEN_ISSUER,
       algorithms: [TOKEN_ALGORITHM],
     },
-    (tokenPayload: unknown, done) => {
-      done(null, readUserFromTokenPayload(tokenPayload) ?? false);
+    (tokenPayload: unknown, completeVerification) => {
+      completeVerification(null, readUserFromTokenPayload(tokenPayload) ?? false);
     },
   );
 }

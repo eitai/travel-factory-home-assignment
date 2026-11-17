@@ -11,8 +11,8 @@ export const httpClient = axios.create({
 
 let handleExpiredSession: () => void = () => undefined;
 
-export function onSessionExpired(handler: () => void): void {
-  handleExpiredSession = handler;
+export function onSessionExpired(expiredSessionHandler: () => void): void {
+  handleExpiredSession = expiredSessionHandler;
 }
 
 httpClient.interceptors.request.use((requestConfig) => {

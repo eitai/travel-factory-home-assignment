@@ -68,11 +68,11 @@ export function formatDateRangeWithWeekdays(startDate: IsoDate, endDate: IsoDate
     return `${formatDayWithWeekday(startDate)} ${endYear}`;
   }
   const startYear = getYear(startDate);
-  const start =
+  const formattedStart =
     startYear === endYear
       ? formatDayWithWeekday(startDate)
       : `${formatDayWithWeekday(startDate)} ${startYear}`;
-  return `${start} to ${formatDayWithWeekday(endDate)} ${endYear}`;
+  return `${formattedStart} to ${formatDayWithWeekday(endDate)} ${endYear}`;
 }
 
 export function formatVacationLength(startDate: IsoDate, endDate: IsoDate): string {
@@ -80,26 +80,26 @@ export function formatVacationLength(startDate: IsoDate, endDate: IsoDate): stri
 }
 
 export function describeVacationPeriod(startDate: IsoDate, endDate: IsoDate): string {
-  const length = formatVacationLength(startDate, endDate);
+  const vacationLength = formatVacationLength(startDate, endDate);
   const startMonth = formatMonthName(startDate);
   const endMonth = formatMonthName(endDate);
   return startMonth === endMonth
-    ? `${length} in ${startMonth}`
-    : `${length}, ${startMonth} to ${endMonth}`;
+    ? `${vacationLength} in ${startMonth}`
+    : `${vacationLength}, ${startMonth} to ${endMonth}`;
 }
 
 export function describeHistoryEntry(historyEntry: VacationRequestHistoryEntryDto): string {
   const { actorName, details, type } = historyEntry;
-  const dates =
+  const dateRangeText =
     details?.startDate && details.endDate
       ? formatDateRange(details.startDate, details.endDate)
       : '';
 
   switch (type) {
     case VacationRequestEventType.Submitted:
-      return `${actorName} submitted the request for ${dates}`;
+      return `${actorName} submitted the request for ${dateRangeText}`;
     case VacationRequestEventType.Updated:
-      return `${actorName} changed the dates to ${dates}`;
+      return `${actorName} changed the dates to ${dateRangeText}`;
     case VacationRequestEventType.Approved:
       return `${actorName} approved the request`;
     case VacationRequestEventType.Rejected:

@@ -8,35 +8,48 @@ import {
 } from './vacationRequestSchemas';
 
 const TODAY = '2026-11-17';
-const schema = createVacationRequestInputSchema(TODAY);
+const vacationRequestInputSchema = createVacationRequestInputSchema(TODAY);
 
 describe('vacation request input', () => {
   it('accepts a valid request and turns an empty reason into null', () => {
-    const result = schema.parse({ startDate: '2026-12-01', endDate: '2026-12-03', reason: '  ' });
+    const parsedInput = vacationRequestInputSchema.parse({
+      startDate: '2026-12-01',
+      endDate: '2026-12-03',
+      reason: '  ',
+    });
 
-    expect(result).toEqual({ startDate: '2026-12-01', endDate: '2026-12-03', reason: null });
+    expect(parsedInput).toEqual({ startDate: '2026-12-01', endDate: '2026-12-03', reason: null });
   });
 
   it('reports a past start date on the start date field', () => {
-    const result = validateWithSchema(schema, { startDate: '2026-11-01', endDate: '2026-12-03' });
+    const validation = validateWithSchema(vacationRequestInputSchema, {
+      startDate: '2026-11-01',
+      endDate: '2026-12-03',
+    });
 
-    expect(result).toEqual({
+    expect(validation).toEqual({
       isValid: false,
       fieldErrors: { startDate: 'The start date cannot be in the past' },
     });
   });
 
   it('reports a reversed range on the end date field', () => {
-    const result = validateWithSchema(schema, { startDate: '2026-12-05', endDate: '2026-12-01' });
+    const validation = validateWithSchema(vacationRequestInputSchema, {
+      startDate: '2026-12-05',
+      endDate: '2026-12-01',
+    });
 
-    expect(result.isValid).toBe(false);
-    expect(result.isValid ? {} : result.fieldErrors).toHaveProperty('endDate');
+    expect(validation.isValid).toBe(false);
+    expect(validation.isValid ? {} : validation.fieldErrors).toHaveProperty('endDate');
   });
 
   it('rejects a date that does not exist', () => {
-    const result = validateWithSchema(schema, { startDate: '2026-02-30', endDate: '2026-03-01' });
+    const validation = validateWithSchema(vacationRequestInputSchema, {
+      startDate: '2026-02-30',
+      endDate: '2026-03-01',
+    });
 
-    expect(result.isValid).toBe(false);
+    expect(validation.isValid).toBe(false);
   });
 });
 

@@ -60,7 +60,7 @@ paths:
       tags: [Authentication]
       summary: Sign in with email and password
       security: []
-      x-handler: modules/auth/authHandlers#login
+      x-handler: modules/auth/authHandlers#handleLogin
       x-inputParser: modules/auth/authHandlers#parseLogin
       requestBody:
         required: true
@@ -82,7 +82,7 @@ paths:
     get:
       tags: [Authentication]
       summary: The signed-in user
-      x-handler: modules/auth/authHandlers#getCurrentUser
+      x-handler: modules/auth/authHandlers#handleGetCurrentUser
       responses:
         '200': { description: The user the token belongs to }
         '401': { description: Missing or invalid token }
@@ -92,7 +92,7 @@ paths:
       tags: [Users]
       summary: Requesters a validator can filter by
       description: 'Permission: read user list (validators).'
-      x-handler: modules/users/userHandlers#listUsers
+      x-handler: modules/users/userHandlers#handleListUsers
       responses:
         '200': { description: Id and name of every requester }
         '403': { description: Not permitted }
@@ -102,7 +102,7 @@ paths:
       tags: [Vacation requests]
       summary: The signed-in requester's own requests
       description: 'Permission: read own requests (requesters).'
-      x-handler: modules/vacationRequests/vacationRequestHandlers#listMine
+      x-handler: modules/vacationRequests/vacationRequestHandlers#handleListMyVacationRequests
       x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseListMyVacationRequests
       parameters:
         - $ref: '#/components/parameters/status'
@@ -116,7 +116,7 @@ paths:
       tags: [Vacation requests]
       summary: Every request, for review
       description: 'Permission: read all requests (validators).'
-      x-handler: modules/vacationRequests/vacationRequestHandlers#listAll
+      x-handler: modules/vacationRequests/vacationRequestHandlers#handleListAllVacationRequests
       x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseListAllVacationRequests
       parameters:
         - $ref: '#/components/parameters/status'
@@ -132,7 +132,7 @@ paths:
       tags: [Vacation requests]
       summary: Submit a vacation request
       description: 'Permission: create request (requesters).'
-      x-handler: modules/vacationRequests/vacationRequestHandlers#submit
+      x-handler: modules/vacationRequests/vacationRequestHandlers#handleSubmitVacationRequest
       x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseSubmitVacationRequest
       requestBody:
         required: true
@@ -149,7 +149,7 @@ paths:
       tags: [Vacation requests]
       summary: Edit a pending request
       description: 'Permission: update own request (requesters).'
-      x-handler: modules/vacationRequests/vacationRequestHandlers#update
+      x-handler: modules/vacationRequests/vacationRequestHandlers#handleUpdateVacationRequest
       x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseUpdateVacationRequest
       parameters:
         - $ref: '#/components/parameters/vacationRequestId'
@@ -166,7 +166,7 @@ paths:
       tags: [Vacation requests]
       summary: Cancel a pending request
       description: 'Permission: cancel own request (requesters).'
-      x-handler: modules/vacationRequests/vacationRequestHandlers#cancel
+      x-handler: modules/vacationRequests/vacationRequestHandlers#handleCancelVacationRequest
       x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseVacationRequestId
       parameters:
         - $ref: '#/components/parameters/vacationRequestId'
@@ -179,7 +179,7 @@ paths:
       tags: [Review]
       summary: Approve a pending request
       description: 'Permission: approve (validators).'
-      x-handler: modules/vacationRequests/vacationRequestHandlers#approve
+      x-handler: modules/vacationRequests/vacationRequestHandlers#handleApproveVacationRequest
       x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseVacationRequestId
       parameters:
         - $ref: '#/components/parameters/vacationRequestId'
@@ -192,7 +192,7 @@ paths:
       tags: [Review]
       summary: Reject a pending request with a comment
       description: 'Permission: reject (validators).'
-      x-handler: modules/vacationRequests/vacationRequestHandlers#reject
+      x-handler: modules/vacationRequests/vacationRequestHandlers#handleRejectVacationRequest
       x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseRejectVacationRequest
       parameters:
         - $ref: '#/components/parameters/vacationRequestId'
@@ -215,7 +215,7 @@ paths:
       tags: [Vacation requests]
       summary: Who did what to a request, and when
       description: 'Permission: read history (own requests for requesters, all for validators).'
-      x-handler: modules/requestHistory/requestHistoryHandlers#getHistory
+      x-handler: modules/requestHistory/requestHistoryHandlers#handleGetVacationRequestHistory
       x-inputParser: modules/vacationRequests/vacationRequestHandlers#parseVacationRequestId
       parameters:
         - $ref: '#/components/parameters/vacationRequestId'
@@ -227,7 +227,7 @@ paths:
       tags: [Team calendar]
       summary: Approved and pending vacations per person
       description: 'Permission: read team calendar (both roles). Reasons and comments are not included.'
-      x-handler: modules/teamCalendar/teamCalendarHandlers#getCalendar
+      x-handler: modules/teamCalendar/teamCalendarHandlers#handleGetTeamCalendar
       x-inputParser: modules/teamCalendar/teamCalendarHandlers#parseTeamCalendarQuery
       parameters:
         - in: query
@@ -249,7 +249,7 @@ paths:
         Internal. Receives queue messages published after a change is saved and
         records one history entry. Calls over HTTP are refused.
       security: []
-      x-handler: modules/requestHistory/requestHistoryHandlers#recordVacationRequestChanged
+      x-handler: modules/requestHistory/requestHistoryHandlers#handleVacationRequestChangedEvent
       x-inputParser: modules/requestHistory/requestHistoryHandlers#parseVacationRequestChangedEvent
       responses:
         '200': { description: Recorded }

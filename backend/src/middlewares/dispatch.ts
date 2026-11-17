@@ -14,9 +14,7 @@ export const dispatch: RequestHandler = async (request, response) => {
   }
 
   const context: RequestContext | AnonymousContext =
-    request.user && ability
-      ? { event: commonEvent, currentUser: request.user, ability }
-      : { event: commonEvent };
+    request.user && ability ? { commonEvent, currentUser: request.user, ability } : { commonEvent };
 
   sendHandlerResult(response, await routeHandler(input, context));
 };

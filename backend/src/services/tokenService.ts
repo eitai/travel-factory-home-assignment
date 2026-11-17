@@ -28,6 +28,6 @@ export function readUserFromTokenPayload(tokenPayload: unknown): UserDto | undef
   if (!parsedPayload.success) {
     return undefined;
   }
-  const { sub, name, email, role } = parsedPayload.data;
-  return { id: sub, name, email, role };
+  const { sub: userId, name, email, role } = parsedPayload.data;
+  return { id: userId, name, email, role };
 }

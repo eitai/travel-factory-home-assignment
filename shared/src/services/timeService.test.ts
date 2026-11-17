@@ -43,17 +43,17 @@ describe('past dates', () => {
 });
 
 describe('overlap', () => {
-  const december1To5 = { startDate: '2026-12-01', endDate: '2026-12-05' };
+  const decemberFirstToFifth = { startDate: '2026-12-01', endDate: '2026-12-05' };
 
   it('detects ranges that share a single day', () => {
     expect(
-      doDateRangesOverlap(december1To5, { startDate: '2026-12-05', endDate: '2026-12-09' }),
+      doDateRangesOverlap(decemberFirstToFifth, { startDate: '2026-12-05', endDate: '2026-12-09' }),
     ).toBe(true);
   });
 
   it('allows ranges that touch on consecutive days', () => {
     expect(
-      doDateRangesOverlap(december1To5, { startDate: '2026-12-06', endDate: '2026-12-09' }),
+      doDateRangesOverlap(decemberFirstToFifth, { startDate: '2026-12-06', endDate: '2026-12-09' }),
     ).toBe(false);
   });
 });

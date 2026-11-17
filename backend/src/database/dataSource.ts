@@ -5,30 +5,30 @@ import { User } from '../modules/users/User';
 import { VacationRequest } from '../modules/vacationRequests/VacationRequest';
 import { InitialSchema1794947115672 } from './migrations/1794947115672-InitialSchema';
 
-let dataSource: DataSource | undefined;
+let cachedDataSource: DataSource | undefined;
 
 export function getDataSource(): DataSource {
-  dataSource ??= new DataSource({
+  cachedDataSource ??= new DataSource({
     type: 'postgres',
     url: getSettings().databaseUrl,
     entities: [User, VacationRequest, VacationRequestEvent],
     migrations: [InitialSchema1794947115672],
     synchronize: false,
   });
-  return dataSource;
+  return cachedDataSource;
 }
 
 export async function initializeDataSource(): Promise<DataSource> {
-  const connection = getDataSource();
-  if (!connection.isInitialized) {
-    await connection.initialize();
+  const dataSource = getDataSource();
+  if (!dataSource.isInitialized) {
+    await dataSource.initialize();
   }
-  return connection;
+  return dataSource;
 }
 
 export async function closeDataSource(): Promise<void> {
-  if (dataSource?.isInitialized) {
-    await dataSource.destroy();
+  if (cachedDataSource?.isInitialized) {
+    await cachedDataSource.destroy();
   }
-  dataSource = undefined;
+  cachedDataSource = undefined;
 }

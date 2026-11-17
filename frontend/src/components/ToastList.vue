@@ -5,7 +5,7 @@ import { useAppStore } from '../store';
 const store = useAppStore();
 const notifications = computed(() => store.state.notifications.notifications);
 
-function dismiss(notificationId: number): void {
+function dismissNotification(notificationId: number): void {
   void store.dispatch('notifications/dismiss', notificationId);
 }
 </script>
@@ -26,7 +26,9 @@ function dismiss(notificationId: number): void {
         <span class="font-bold">{{ notification.kind === 'error' ? 'Error: ' : 'Done: ' }}</span>
         {{ notification.message }}
       </p>
-      <button type="button" class="button" @click="dismiss(notification.id)">Dismiss</button>
+      <button type="button" class="button" @click="dismissNotification(notification.id)">
+        Dismiss
+      </button>
     </div>
   </div>
 </template>

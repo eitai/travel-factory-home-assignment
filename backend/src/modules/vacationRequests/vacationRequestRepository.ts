@@ -54,15 +54,15 @@ export function findOverlappingVacationRequest(
   return query.orderBy('vacationRequest.startDate', 'ASC').getOne();
 }
 
-function toWhere(filters: VacationRequestFilters): FindOptionsWhere<VacationRequest> {
-  const where: FindOptionsWhere<VacationRequest> = {};
+function toFilterConditions(filters: VacationRequestFilters): FindOptionsWhere<VacationRequest> {
+  const filterConditions: FindOptionsWhere<VacationRequest> = {};
   if (filters.userId !== undefined) {
-    where.userId = filters.userId;
+    filterConditions.userId = filters.userId;
   }
   if (filters.status !== undefined) {
-    where.status = filters.status;
+    filterConditions.status = filters.status;
   }
-  return where;
+  return filterConditions;
 }
 
 export function findVacationRequestPageForUser(
@@ -71,7 +71,7 @@ export function findVacationRequestPageForUser(
   pageWindow: PageWindow,
 ): Promise<[VacationRequest[], number]> {
   return getVacationRequestRepository().findAndCount({
-    where: toWhere({ userId, status }),
+    where: toFilterConditions({ userId, status }),
     relations: { user: true },
     order: { startDate: 'DESC', id: 'DESC' },
     ...pageWindow,
@@ -83,7 +83,7 @@ export function findVacationRequestPageForReview(
   pageWindow: PageWindow,
 ): Promise<[VacationRequest[], number]> {
   return getVacationRequestRepository().findAndCount({
-    where: toWhere(filters),
+    where: toFilterConditions(filters),
     relations: { user: true },
     order: { createdAt: 'DESC', id: 'DESC' },
     ...pageWindow,
@@ -92,14 +92,14 @@ export function findVacationRequestPageForReview(
 
 async function writeIfStillPending(
   vacationRequestId: number,
-  values: Partial<
+  columnValues: Partial<
     Pick<VacationRequest, 'startDate' | 'endDate' | 'reason' | 'status' | 'comments'>
   >,
 ): Promise<boolean> {
   const updateResult = await getVacationRequestRepository()
     .createQueryBuilder()
     .update()
-    .set(values)
+    .set(columnValues)
     .where('id = :vacationRequestId', { vacationRequestId })
     .andWhere('status = :pending', { pending: VacationRequestStatus.Pending })
     .execute();

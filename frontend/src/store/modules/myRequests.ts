@@ -12,7 +12,7 @@ import {
 import type { RootState } from '../index';
 
 export interface MyRequestsState {
-  page: PaginatedResult<VacationRequestDto> | null;
+  requestPage: PaginatedResult<VacationRequestDto> | null;
   filters: MyVacationRequestsFilters | null;
   isLoading: boolean;
   errorMessage: string | null;
@@ -27,7 +27,7 @@ export const myRequestsModule: Module<MyRequestsState, RootState> = {
   namespaced: true,
 
   state: () => ({
-    page: null,
+    requestPage: null,
     filters: null,
     isLoading: false,
     errorMessage: null,
@@ -39,8 +39,8 @@ export const myRequestsModule: Module<MyRequestsState, RootState> = {
       state.isLoading = true;
       state.errorMessage = null;
     },
-    loadSucceeded(state, page: PaginatedResult<VacationRequestDto>) {
-      state.page = page;
+    loadSucceeded(state, requestPage: PaginatedResult<VacationRequestDto>) {
+      state.requestPage = requestPage;
       state.isLoading = false;
     },
     loadFailed(state, errorMessage: string) {

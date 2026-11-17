@@ -3,30 +3,30 @@ import type { AppAbility } from '@vacation-manager/shared';
 import type { ResolvedRoute } from './cefService';
 
 interface RequestState {
-  route?: ResolvedRoute;
+  resolvedRoute?: ResolvedRoute;
   ability?: AppAbility;
 }
 
-function getState(response: Response): RequestState {
+function getRequestState(response: Response): RequestState {
   return response.locals as RequestState;
 }
 
-export function setResolvedRoute(response: Response, route: ResolvedRoute): void {
-  getState(response).route = route;
+export function setResolvedRoute(response: Response, resolvedRoute: ResolvedRoute): void {
+  getRequestState(response).resolvedRoute = resolvedRoute;
 }
 
 export function getResolvedRoute(response: Response): ResolvedRoute {
-  const { route } = getState(response);
-  if (!route) {
+  const { resolvedRoute } = getRequestState(response);
+  if (!resolvedRoute) {
     throw new Error('resolveRoute must run before this middleware');
   }
-  return route;
+  return resolvedRoute;
 }
 
 export function setAbility(response: Response, ability: AppAbility): void {
-  getState(response).ability = ability;
+  getRequestState(response).ability = ability;
 }
 
 export function getAbility(response: Response): AppAbility | undefined {
-  return getState(response).ability;
+  return getRequestState(response).ability;
 }

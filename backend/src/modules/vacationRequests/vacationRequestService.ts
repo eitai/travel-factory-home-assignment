@@ -81,8 +81,8 @@ async function assertNoOverlap(
   );
   if (overlappingRequest) {
     const overlappingDates = `${formatDate(overlappingRequest.startDate)} to ${formatDate(overlappingRequest.endDate)}`;
-    const message = `These dates overlap another request (${overlappingDates})`;
-    throw conflict('DATES_OVERLAP', message, { startDate: message });
+    const overlapMessage = `These dates overlap another request (${overlappingDates})`;
+    throw conflict('DATES_OVERLAP', overlapMessage, { startDate: overlapMessage });
   }
 }
 

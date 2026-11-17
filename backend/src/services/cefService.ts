@@ -23,9 +23,9 @@ export interface ResolvedRoute {
 
 function flattenQuery(query: Request['query']): Record<string, string> {
   const flatQuery: Record<string, string> = {};
-  for (const [name, value] of Object.entries(query)) {
-    if (typeof value === 'string') {
-      flatQuery[name] = value;
+  for (const [parameterName, parameterValue] of Object.entries(query)) {
+    if (typeof parameterValue === 'string') {
+      flatQuery[parameterName] = parameterValue;
     }
   }
   return flatQuery;

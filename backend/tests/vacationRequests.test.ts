@@ -4,7 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { VacationRequestStatus } from '@vacation-manager/shared';
 import {
   apiPath,
-  bearer,
+  authorizationHeader,
   createRequester,
   createValidator,
   daysFromToday,
@@ -33,26 +33,29 @@ beforeEach(async () => {
 
 afterAll(stopTestApp);
 
-function submit(user: TestUser, body: object) {
-  return request(app).post(apiPath('/vacation-requests')).set(bearer(user)).send(body);
+function submitRequest(user: TestUser, requestBody: object) {
+  return request(app)
+    .post(apiPath('/vacation-requests'))
+    .set(authorizationHeader(user))
+    .send(requestBody);
 }
 
-function approve(vacationRequestId: number) {
+function approveRequest(vacationRequestId: number) {
   return request(app)
     .post(apiPath(`/vacation-requests/${vacationRequestId}/approve`))
-    .set(bearer(validator));
+    .set(authorizationHeader(validator));
 }
 
-function reject(vacationRequestId: number, comment = 'Too many people are away') {
+function rejectRequest(vacationRequestId: number, comment = 'Too many people are away') {
   return request(app)
     .post(apiPath(`/vacation-requests/${vacationRequestId}/reject`))
-    .set(bearer(validator))
+    .set(authorizationHeader(validator))
     .send({ comment });
 }
 
 describe('submitting a request', () => {
   it('creates a pending request owned by the requester', async () => {
-    const response = await submit(requester, {
+    const response = await submitRequest(requester, {
       startDate: daysFromToday(10),
       endDate: daysFromToday(12),
       reason: 'A short break',
@@ -71,7 +74,7 @@ describe('submitting a request', () => {
   });
 
   it('accepts a request without a reason', async () => {
-    const response = await submit(requester, {
+    const response = await submitRequest(requester, {
       startDate: daysFromToday(10),
       endDate: daysFromToday(12),
     });
@@ -81,7 +84,7 @@ describe('submitting a request', () => {
   });
 
   it('accepts a one-day vacation and a vacation starting today', async () => {
-    const response = await submit(requester, {
+    const response = await submitRequest(requester, {
       startDate: daysFromToday(0),
       endDate: daysFromToday(0),
     });
@@ -90,7 +93,7 @@ describe('submitting a request', () => {
   });
 
   it('rejects an end date before the start date', async () => {
-    const response = await submit(requester, {
+    const response = await submitRequest(requester, {
       startDate: daysFromToday(12),
       endDate: daysFromToday(10),
     });
@@ -100,7 +103,7 @@ describe('submitting a request', () => {
   });
 
   it('rejects a start date in the past', async () => {
-    const response = await submit(requester, {
+    const response = await submitRequest(requester, {
       startDate: daysFromToday(-1),
       endDate: daysFromToday(3),
     });
@@ -110,8 +113,11 @@ describe('submitting a request', () => {
   });
 
   it('rejects missing and malformed dates', async () => {
-    const missingDates = await submit(requester, { reason: 'No dates' });
-    const malformedDate = await submit(requester, { startDate: '12/01/2027', endDate: 'soon' });
+    const missingDates = await submitRequest(requester, { reason: 'No dates' });
+    const malformedDate = await submitRequest(requester, {
+      startDate: '12/01/2027',
+      endDate: 'soon',
+    });
 
     expect(missingDates.status).toBe(400);
     expect(Object.keys(missingDates.body.error.fields)).toEqual(['startDate', 'endDate']);
@@ -119,7 +125,7 @@ describe('submitting a request', () => {
   });
 
   it('refuses a validator, because only requesters submit', async () => {
-    const response = await submit(validator, {
+    const response = await submitRequest(validator, {
       startDate: daysFromToday(10),
       endDate: daysFromToday(12),
     });
@@ -132,7 +138,7 @@ describe('overlapping requests', () => {
   it('rejects dates that overlap a pending request of the same user', async () => {
     await submitVacation(app, requester, 10, 14);
 
-    const response = await submit(requester, {
+    const response = await submitRequest(requester, {
       startDate: daysFromToday(14),
       endDate: daysFromToday(16),
     });
@@ -144,9 +150,9 @@ describe('overlapping requests', () => {
 
   it('rejects dates that overlap an approved request of the same user', async () => {
     const approvedRequest = await submitVacation(app, requester, 10, 14);
-    await approve(approvedRequest.id);
+    await approveRequest(approvedRequest.id);
 
-    const response = await submit(requester, {
+    const response = await submitRequest(requester, {
       startDate: daysFromToday(8),
       endDate: daysFromToday(10),
     });
@@ -156,9 +162,9 @@ describe('overlapping requests', () => {
 
   it('allows the same dates again after a rejection', async () => {
     const rejectedRequest = await submitVacation(app, requester, 10, 14);
-    await reject(rejectedRequest.id);
+    await rejectRequest(rejectedRequest.id);
 
-    const response = await submit(requester, {
+    const response = await submitRequest(requester, {
       startDate: daysFromToday(10),
       endDate: daysFromToday(14),
     });
@@ -169,7 +175,7 @@ describe('overlapping requests', () => {
   it('allows two different users to be away on the same dates', async () => {
     await submitVacation(app, requester, 10, 14);
 
-    const response = await submit(otherRequester, {
+    const response = await submitRequest(otherRequester, {
       startDate: daysFromToday(10),
       endDate: daysFromToday(14),
     });
@@ -181,8 +187,8 @@ describe('overlapping requests', () => {
     const sameDates = { startDate: daysFromToday(20), endDate: daysFromToday(22) };
 
     const responses = await Promise.all([
-      submit(requester, sameDates),
-      submit(requester, sameDates),
+      submitRequest(requester, sameDates),
+      submitRequest(requester, sameDates),
     ]);
     const statuses = responses.map((response) => response.status).sort();
 
@@ -198,7 +204,7 @@ describe('listing my requests', () => {
 
     const response = await request(app)
       .get(apiPath('/users/me/vacation-requests'))
-      .set(bearer(requester));
+      .set(authorizationHeader(requester));
 
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: { id: number }) => item.id)).toEqual([
@@ -212,16 +218,16 @@ describe('listing my requests', () => {
     const firstRequest = await submitVacation(app, requester, 10, 11);
     await submitVacation(app, requester, 20, 21);
     await submitVacation(app, requester, 30, 31);
-    await approve(firstRequest.id);
+    await approveRequest(firstRequest.id);
 
     const secondPage = await request(app)
       .get(apiPath('/users/me/vacation-requests'))
       .query({ page: 2, pageSize: 2 })
-      .set(bearer(requester));
+      .set(authorizationHeader(requester));
     const approvedOnly = await request(app)
       .get(apiPath('/users/me/vacation-requests'))
       .query({ status: VacationRequestStatus.Approved })
-      .set(bearer(requester));
+      .set(authorizationHeader(requester));
 
     expect(secondPage.body).toMatchObject({ page: 2, pageSize: 2, totalItems: 3, totalPages: 2 });
     expect(secondPage.body.items).toHaveLength(1);
@@ -234,7 +240,7 @@ describe('listing my requests', () => {
     const response = await request(app)
       .get(apiPath('/users/me/vacation-requests'))
       .query({ page: 0, pageSize: 500 })
-      .set(bearer(requester));
+      .set(authorizationHeader(requester));
 
     expect(response.status).toBe(400);
     expect(Object.keys(response.body.error.fields)).toEqual(['page', 'pageSize']);
@@ -247,7 +253,7 @@ describe('editing a request', () => {
 
     const response = await request(app)
       .put(apiPath(`/vacation-requests/${vacationRequest.id}`))
-      .set(bearer(requester))
+      .set(authorizationHeader(requester))
       .send({ startDate: daysFromToday(11), endDate: daysFromToday(15), reason: 'Changed plan' });
 
     expect(response.status).toBe(200);
@@ -264,7 +270,7 @@ describe('editing a request', () => {
 
     const response = await request(app)
       .put(apiPath(`/vacation-requests/${vacationRequest.id}`))
-      .set(bearer(requester))
+      .set(authorizationHeader(requester))
       .send({ startDate: daysFromToday(11), endDate: daysFromToday(13) });
 
     expect(response.status).toBe(200);
@@ -276,7 +282,7 @@ describe('editing a request', () => {
 
     const response = await request(app)
       .put(apiPath(`/vacation-requests/${vacationRequest.id}`))
-      .set(bearer(requester))
+      .set(authorizationHeader(requester))
       .send({ startDate: daysFromToday(12), endDate: daysFromToday(22) });
 
     expect(response.status).toBe(409);
@@ -285,11 +291,11 @@ describe('editing a request', () => {
 
   it('refuses to edit an approved request', async () => {
     const vacationRequest = await submitVacation(app, requester, 10, 12);
-    await approve(vacationRequest.id);
+    await approveRequest(vacationRequest.id);
 
     const response = await request(app)
       .put(apiPath(`/vacation-requests/${vacationRequest.id}`))
-      .set(bearer(requester))
+      .set(authorizationHeader(requester))
       .send({ startDate: daysFromToday(11), endDate: daysFromToday(13) });
 
     expect(response.status).toBe(409);
@@ -301,7 +307,7 @@ describe('editing a request', () => {
 
     const response = await request(app)
       .put(apiPath(`/vacation-requests/${vacationRequest.id}`))
-      .set(bearer(otherRequester))
+      .set(authorizationHeader(otherRequester))
       .send({ startDate: daysFromToday(11), endDate: daysFromToday(13) });
 
     expect(response.status).toBe(403);
@@ -310,11 +316,11 @@ describe('editing a request', () => {
   it('answers with 404 for a request that does not exist', async () => {
     const response = await request(app)
       .put(apiPath('/vacation-requests/9999'))
-      .set(bearer(requester))
+      .set(authorizationHeader(requester))
       .send({ startDate: daysFromToday(11), endDate: daysFromToday(13) });
     const malformedId = await request(app)
       .put(apiPath('/vacation-requests/not-a-number'))
-      .set(bearer(requester))
+      .set(authorizationHeader(requester))
       .send({ startDate: daysFromToday(11), endDate: daysFromToday(13) });
 
     expect(response.status).toBe(404);
@@ -328,10 +334,10 @@ describe('cancelling a request', () => {
 
     const response = await request(app)
       .delete(apiPath(`/vacation-requests/${vacationRequest.id}`))
-      .set(bearer(requester));
+      .set(authorizationHeader(requester));
     const myRequests = await request(app)
       .get(apiPath('/users/me/vacation-requests'))
-      .set(bearer(requester));
+      .set(authorizationHeader(requester));
 
     expect(response.status).toBe(204);
     expect(myRequests.body.totalItems).toBe(0);
@@ -340,15 +346,15 @@ describe('cancelling a request', () => {
   it('refuses to cancel an approved or rejected request', async () => {
     const approvedRequest = await submitVacation(app, requester, 10, 12);
     const rejectedRequest = await submitVacation(app, requester, 20, 22);
-    await approve(approvedRequest.id);
-    await reject(rejectedRequest.id);
+    await approveRequest(approvedRequest.id);
+    await rejectRequest(rejectedRequest.id);
 
     const cancelApproved = await request(app)
       .delete(apiPath(`/vacation-requests/${approvedRequest.id}`))
-      .set(bearer(requester));
+      .set(authorizationHeader(requester));
     const cancelRejected = await request(app)
       .delete(apiPath(`/vacation-requests/${rejectedRequest.id}`))
-      .set(bearer(requester));
+      .set(authorizationHeader(requester));
 
     expect(cancelApproved.status).toBe(409);
     expect(cancelRejected.status).toBe(409);
@@ -359,7 +365,7 @@ describe('cancelling a request', () => {
 
     const response = await request(app)
       .delete(apiPath(`/vacation-requests/${vacationRequest.id}`))
-      .set(bearer(otherRequester));
+      .set(authorizationHeader(otherRequester));
 
     expect(response.status).toBe(403);
   });

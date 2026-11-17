@@ -26,51 +26,58 @@ import {
   updateVacationRequest,
 } from './vacationRequestService';
 
-export const parseSubmitVacationRequest: InputParser<SubmitVacationRequestCommand> = (event) =>
-  parseJsonBody(event, createVacationRequestInputSchema(todayIsoDate()));
+export const parseSubmitVacationRequest: InputParser<SubmitVacationRequestCommand> = (
+  commonEvent,
+) => parseJsonBody(commonEvent, createVacationRequestInputSchema(todayIsoDate()));
 
-export const parseUpdateVacationRequest: InputParser<UpdateVacationRequestCommand> = (event) => ({
-  vacationRequestId: parseIdParameter(event),
-  changes: parseJsonBody(event, createVacationRequestInputSchema(todayIsoDate())),
+export const parseUpdateVacationRequest: InputParser<UpdateVacationRequestCommand> = (
+  commonEvent,
+) => ({
+  vacationRequestId: parseIdParameter(commonEvent),
+  changes: parseJsonBody(commonEvent, createVacationRequestInputSchema(todayIsoDate())),
 });
 
-export const parseVacationRequestId: InputParser<VacationRequestIdCommand> = (event) => ({
-  vacationRequestId: parseIdParameter(event),
+export const parseVacationRequestId: InputParser<VacationRequestIdCommand> = (commonEvent) => ({
+  vacationRequestId: parseIdParameter(commonEvent),
 });
 
-export const parseRejectVacationRequest: InputParser<RejectVacationRequestCommand> = (event) => ({
-  vacationRequestId: parseIdParameter(event),
-  comment: parseJsonBody(event, rejectVacationRequestSchema).comment,
+export const parseRejectVacationRequest: InputParser<RejectVacationRequestCommand> = (
+  commonEvent,
+) => ({
+  vacationRequestId: parseIdParameter(commonEvent),
+  comment: parseJsonBody(commonEvent, rejectVacationRequestSchema).comment,
 });
 
-export const parseListMyVacationRequests: InputParser<ListMyVacationRequestsQuery> = (event) =>
-  parseQuery(event, myVacationRequestsQuerySchema);
+export const parseListMyVacationRequests: InputParser<ListMyVacationRequestsQuery> = (
+  commonEvent,
+) => parseQuery(commonEvent, myVacationRequestsQuerySchema);
 
-export const parseListAllVacationRequests: InputParser<ListAllVacationRequestsQuery> = (event) =>
-  parseQuery(event, allVacationRequestsQuerySchema);
+export const parseListAllVacationRequests: InputParser<ListAllVacationRequestsQuery> = (
+  commonEvent,
+) => parseQuery(commonEvent, allVacationRequestsQuerySchema);
 
-export const submit = protectedRoute(
+export const handleSubmitVacationRequest = protectedRoute(
   { action: 'create', subject: 'VacationRequest' },
   async (command: SubmitVacationRequestCommand, actor) =>
     new Response(201, await submitVacationRequest(command, actor)),
 );
 
-export const listMine = protectedRoute(
+export const handleListMyVacationRequests = protectedRoute(
   { action: 'read', subject: 'VacationRequest' },
   (query: ListMyVacationRequestsQuery, actor) => listMyVacationRequests(query, actor),
 );
 
-export const listAll = protectedRoute(
+export const handleListAllVacationRequests = protectedRoute(
   { action: 'readAll', subject: 'VacationRequest' },
   (query: ListAllVacationRequestsQuery) => listAllVacationRequests(query),
 );
 
-export const update = protectedRoute(
+export const handleUpdateVacationRequest = protectedRoute(
   { action: 'update', subject: 'VacationRequest' },
   (command: UpdateVacationRequestCommand, actor) => updateVacationRequest(command, actor),
 );
 
-export const cancel = protectedRoute(
+export const handleCancelVacationRequest = protectedRoute(
   { action: 'cancel', subject: 'VacationRequest' },
   async (command: VacationRequestIdCommand, actor) => {
     await cancelVacationRequest(command, actor);
@@ -78,12 +85,12 @@ export const cancel = protectedRoute(
   },
 );
 
-export const approve = protectedRoute(
+export const handleApproveVacationRequest = protectedRoute(
   { action: 'approve', subject: 'VacationRequest' },
   (command: VacationRequestIdCommand, actor) => approveVacationRequest(command, actor),
 );
 
-export const reject = protectedRoute(
+export const handleRejectVacationRequest = protectedRoute(
   { action: 'reject', subject: 'VacationRequest' },
   (command: RejectVacationRequestCommand, actor) => rejectVacationRequest(command, actor),
 );

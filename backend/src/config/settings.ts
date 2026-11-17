@@ -31,10 +31,10 @@ export function getSettings(): Settings {
 
   const parsedEnvironment = environmentSchema.safeParse(process.env);
   if (!parsedEnvironment.success) {
-    const problems = parsedEnvironment.error.issues
+    const settingProblems = parsedEnvironment.error.issues
       .map((issue) => `- ${issue.path.join('.')}: ${issue.message}`)
       .join('\n');
-    throw new Error(`Invalid settings. Check backend/.env:\n${problems}`);
+    throw new Error(`Invalid settings. Check backend/.env:\n${settingProblems}`);
   }
 
   const environment = parsedEnvironment.data;

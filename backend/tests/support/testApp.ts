@@ -75,7 +75,7 @@ export function createValidator(app: Express, name = 'Val Validator'): Promise<T
   return createSignedInUser(app, Role.Validator, name);
 }
 
-export function bearer(user: TestUser): { Authorization: string } {
+export function authorizationHeader(user: TestUser): { Authorization: string } {
   return { Authorization: `Bearer ${user.token}` };
 }
 
@@ -88,7 +88,7 @@ export async function submitVacation(
 ): Promise<VacationRequestDto> {
   const response = await request(app)
     .post(apiPath('/vacation-requests'))
-    .set(bearer(requester))
+    .set(authorizationHeader(requester))
     .send({ startDate: daysFromToday(startsInDays), endDate: daysFromToday(endsInDays), reason });
   if (response.status !== 201) {
     throw new Error(`Submitting failed with ${response.status}: ${JSON.stringify(response.body)}`);

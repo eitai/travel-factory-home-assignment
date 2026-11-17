@@ -41,7 +41,7 @@ const requestToReject = ref<VacationRequestDto | null>(null);
 const isDeciding = ref(false);
 const rejectionErrorMessage = ref<string | null>(null);
 
-const requestPage = computed(() => store.state.reviewQueue.page);
+const requestPage = computed(() => store.state.reviewQueue.requestPage);
 const requesters = computed(() => store.state.reviewQueue.requesters);
 const isLoading = computed(() => store.state.reviewQueue.isLoading);
 const errorMessage = computed(() => store.state.reviewQueue.errorMessage);
@@ -99,12 +99,12 @@ function changeRequesterFilter(changeEvent: Event): void {
   changeFilters(statusSelection.value, selectedUserId);
 }
 
-function changePage(page: number): void {
+function changePage(pageNumber: number): void {
   void router.push({
     query: withoutEmptyValues({
       status: statusSelection.value,
       userId: requesterFilter.value,
-      page,
+      page: pageNumber,
     }),
   });
 }
@@ -118,9 +118,9 @@ function canDecide(vacationRequest: VacationRequestDto): boolean {
 }
 
 function describeRequest(vacationRequest: VacationRequestDto): string {
-  const dates = formatDateRange(vacationRequest.startDate, vacationRequest.endDate);
-  const length = formatVacationLength(vacationRequest.startDate, vacationRequest.endDate);
-  return `${vacationRequest.userName}, ${dates} (${length})`;
+  const dateRangeText = formatDateRange(vacationRequest.startDate, vacationRequest.endDate);
+  const vacationLength = formatVacationLength(vacationRequest.startDate, vacationRequest.endDate);
+  return `${vacationRequest.userName}, ${dateRangeText} (${vacationLength})`;
 }
 
 async function confirmApproval(): Promise<void> {

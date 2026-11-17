@@ -2,8 +2,8 @@ const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export type IsoDate = string;
 
-function padToTwoDigits(value: number): string {
-  return String(value).padStart(2, '0');
+function padToTwoDigits(numberToPad: number): string {
+  return String(numberToPad).padStart(2, '0');
 }
 
 export function toIsoDate(date: Date): IsoDate {

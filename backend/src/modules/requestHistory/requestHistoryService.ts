@@ -13,13 +13,15 @@ import {
   insertVacationRequestEvent,
 } from './requestHistoryRepository';
 
-function toHistoryEntryDto(event: VacationRequestEvent): VacationRequestHistoryEntryDto {
+function toHistoryEntryDto(
+  vacationRequestEvent: VacationRequestEvent,
+): VacationRequestHistoryEntryDto {
   return {
-    id: event.id,
-    type: event.type,
-    actorName: event.actor?.name ?? '',
-    details: event.details,
-    occurredAt: event.createdAt.toISOString(),
+    id: vacationRequestEvent.id,
+    type: vacationRequestEvent.type,
+    actorName: vacationRequestEvent.actor?.name ?? '',
+    details: vacationRequestEvent.details,
+    occurredAt: vacationRequestEvent.createdAt.toISOString(),
   };
 }
 
@@ -39,6 +41,6 @@ export async function listVacationRequestHistory(
     vacationRequestSubject(vacationRequest.userId),
   );
 
-  const events = await findEventsOfVacationRequest(vacationRequest.id);
-  return events.map(toHistoryEntryDto);
+  const vacationRequestEvents = await findEventsOfVacationRequest(vacationRequest.id);
+  return vacationRequestEvents.map(toHistoryEntryDto);
 }

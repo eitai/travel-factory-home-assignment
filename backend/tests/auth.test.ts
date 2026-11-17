@@ -8,7 +8,7 @@ import { getSettings } from '../src/config/settings';
 import { TOKEN_ISSUER } from '../src/services/tokenService';
 import {
   apiPath,
-  bearer,
+  authorizationHeader,
   createRequester,
   emptyDatabase,
   startTestApp,
@@ -94,7 +94,7 @@ describe('signing in', () => {
         .post(apiPath('/auth/login'))
         .send({ email: requester.email, password: 'not-the-password' });
 
-    for (let attempt = 0; attempt < 10; attempt += 1) {
+    for (let attemptNumber = 0; attemptNumber < 10; attemptNumber += 1) {
       expect((await attemptWrongLogin()).status).toBe(401);
     }
     const blockedAttempt = await attemptWrongLogin();
@@ -106,7 +106,9 @@ describe('signing in', () => {
 
 describe('using a token', () => {
   it('returns the signed-in user', async () => {
-    const response = await request(app).get(apiPath('/auth/me')).set(bearer(requester));
+    const response = await request(app)
+      .get(apiPath('/auth/me'))
+      .set(authorizationHeader(requester));
 
     expect(response.status).toBe(200);
     expect(response.body.email).toBe(requester.email);
@@ -164,7 +166,9 @@ describe('using a token', () => {
 
 describe('addresses that do not exist', () => {
   it('answers with a 404 in the standard error shape', async () => {
-    const insideApi = await request(app).get(apiPath('/nothing-here')).set(bearer(requester));
+    const insideApi = await request(app)
+      .get(apiPath('/nothing-here'))
+      .set(authorizationHeader(requester));
     const outsideApi = await request(app).get('/nothing-here');
 
     expect(insideApi.status).toBe(404);

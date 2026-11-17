@@ -52,7 +52,7 @@ function isSelectable(date: IsoDate): boolean {
   return !props.min || date >= props.min;
 }
 
-function toSelectable(date: IsoDate): IsoDate {
+function clampToSelectableDate(date: IsoDate): IsoDate {
   return props.min && date < props.min ? props.min : date;
 }
 
@@ -81,14 +81,14 @@ const weeks = computed(() => {
   const firstDay = firstDayOfMonth(shownYear.value, shownMonthIndex.value);
   const lastDay = lastDayOfMonth(shownYear.value, shownMonthIndex.value);
   const emptyCellsBeforeFirstDay = Array.from({ length: getIsoWeekday(firstDay) - 1 }, () => null);
-  const cells: (IsoDate | null)[] = [
+  const dayCells: (IsoDate | null)[] = [
     ...emptyCellsBeforeFirstDay,
     ...listDatesInRange(firstDay, lastDay),
   ];
 
   const weekRows: (IsoDate | null)[][] = [];
-  for (let cellIndex = 0; cellIndex < cells.length; cellIndex += DAYS_PER_WEEK) {
-    weekRows.push(cells.slice(cellIndex, cellIndex + DAYS_PER_WEEK));
+  for (let cellIndex = 0; cellIndex < dayCells.length; cellIndex += DAYS_PER_WEEK) {
+    weekRows.push(dayCells.slice(cellIndex, cellIndex + DAYS_PER_WEEK));
   }
   return weekRows;
 });
@@ -99,40 +99,40 @@ async function focusDay(date: IsoDate): Promise<void> {
   rootElement.value?.querySelector<HTMLButtonElement>(`button[data-date="${date}"]`)?.focus();
 }
 
-function open(): void {
+function openCalendar(): void {
   isOpen.value = true;
-  void focusDay(toSelectable(props.modelValue || today));
+  void focusDay(clampToSelectableDate(props.modelValue || today));
 }
 
-function close(returnsFocusToField: boolean): void {
+function closeCalendar(returnsFocusToField: boolean): void {
   isOpen.value = false;
   if (returnsFocusToField) {
     triggerElement.value?.focus();
   }
 }
 
-function toggle(): void {
+function toggleCalendar(): void {
   if (isOpen.value) {
-    close(true);
+    closeCalendar(true);
   } else {
-    open();
+    openCalendar();
   }
 }
 
 function selectDate(date: IsoDate): void {
   emit('update:modelValue', date);
-  close(true);
+  closeCalendar(true);
 }
 
 function clearDate(): void {
   emit('update:modelValue', '');
-  close(true);
+  closeCalendar(true);
 }
 
 function showMonth(year: number, monthIndex: number): void {
   const lastDayNumber = getDayOfMonth(lastDayOfMonth(year, monthIndex));
   const dayOfMonth = Math.min(getDayOfMonth(focusedDate.value), lastDayNumber);
-  focusedDate.value = toSelectable(createIsoDate(year, monthIndex, dayOfMonth));
+  focusedDate.value = clampToSelectableDate(createIsoDate(year, monthIndex, dayOfMonth));
 }
 
 function changeMonth(changeEvent: Event): void {
@@ -160,19 +160,19 @@ function moveFocusWithKeyboard(keyboardEvent: KeyboardEvent): void {
     return;
   }
   keyboardEvent.preventDefault();
-  void focusDay(toSelectable(moveDate(focusedDate.value)));
+  void focusDay(clampToSelectableDate(moveDate(focusedDate.value)));
 }
 
 function closeOnPointerOutside(pointerEvent: PointerEvent): void {
   if (!rootElement.value?.contains(pointerEvent.target as Node)) {
-    close(false);
+    closeCalendar(false);
   }
 }
 
 function closeWhenFocusLeaves(focusEvent: FocusEvent): void {
   const nextFocusedElement = focusEvent.relatedTarget as Node | null;
   if (isOpen.value && nextFocusedElement && !rootElement.value?.contains(nextFocusedElement)) {
-    close(false);
+    closeCalendar(false);
   }
 }
 
@@ -201,7 +201,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', closeOnPointer
       :aria-required="isRequired"
       :aria-invalid="isInvalid"
       :aria-describedby="describedBy"
-      @click="toggle"
+      @click="toggleCalendar"
     >
       <span :class="modelValue ? 'tabular-nums' : 'text-ink-muted'">
         {{ modelValue ? formatDate(modelValue) : 'Choose a date' }}
@@ -215,7 +215,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', closeOnPointer
       role="dialog"
       :aria-label="`Choose the ${label.toLowerCase()}`"
       class="date-picker-popover"
-      @keydown.esc.stop.prevent="close(true)"
+      @keydown.esc.stop.prevent="closeCalendar(true)"
     >
       <div class="flex gap-2 px-2">
         <select

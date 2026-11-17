@@ -66,7 +66,7 @@ function stopEditing(): void {
   emit('finished');
 }
 
-async function save(): Promise<void> {
+async function saveVacationRequest(): Promise<void> {
   const validation = validateWithSchema(createVacationRequestInputSchema(today), formValues);
   if (!validation.isValid) {
     fieldErrors.value = validation.fieldErrors;
@@ -107,7 +107,7 @@ async function save(): Promise<void> {
     :aria-labelledby="labelledBy"
     novalidate
     class="card space-y-3.5 p-4 sm:p-6"
-    @submit.prevent="save"
+    @submit.prevent="saveVacationRequest"
   >
     <FormField field-id="start-date" label="First day off" :error-message="fieldErrors.startDate">
       <template #default="{ describedBy, isInvalid }">

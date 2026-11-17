@@ -33,7 +33,7 @@ const editedRequest = ref<VacationRequestDto | null>(null);
 const requestToCancel = ref<VacationRequestDto | null>(null);
 const isCancelling = ref(false);
 
-const requestPage = computed(() => store.state.myRequests.page);
+const requestPage = computed(() => store.state.myRequests.requestPage);
 const isLoading = computed(() => store.state.myRequests.isLoading);
 const errorMessage = computed(() => store.state.myRequests.errorMessage);
 
@@ -60,8 +60,8 @@ function changeStatusFilter(changeEvent: Event): void {
   void router.replace({ query: withoutEmptyValues({ status: selectedStatus }) });
 }
 
-function changePage(page: number): void {
-  void router.push({ query: withoutEmptyValues({ status: statusFilter.value, page }) });
+function changePage(pageNumber: number): void {
+  void router.push({ query: withoutEmptyValues({ status: statusFilter.value, page: pageNumber }) });
 }
 
 function canChange(vacationRequest: VacationRequestDto): boolean {

@@ -3,7 +3,7 @@ import { createApp } from './app';
 import { getSettings } from './config/settings';
 import { closeDataSource, initializeDataSource } from './database/dataSource';
 
-async function start(): Promise<void> {
+async function startApi(): Promise<void> {
   await loadEnv();
   const settings = getSettings();
   await initializeDataSource();
@@ -21,7 +21,7 @@ async function start(): Promise<void> {
   process.on('SIGINT', shutDown);
 }
 
-start().catch((error: unknown) => {
+startApi().catch((error: unknown) => {
   console.error('The API could not start.', error);
   process.exit(1);
 });

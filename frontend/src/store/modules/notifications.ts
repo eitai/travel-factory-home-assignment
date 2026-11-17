@@ -5,14 +5,14 @@ const SUCCESS_VISIBLE_MILLISECONDS = 6_000;
 
 export type NotificationKind = 'success' | 'error';
 
-export interface Notification {
+export interface AppNotification {
   id: number;
   kind: NotificationKind;
   message: string;
 }
 
 export interface NotificationsState {
-  notifications: Notification[];
+  notifications: AppNotification[];
   nextNotificationId: number;
 }
 
@@ -25,7 +25,7 @@ export const notificationsModule: Module<NotificationsState, RootState> = {
   }),
 
   mutations: {
-    notificationAdded(state, notification: Omit<Notification, 'id'>) {
+    notificationAdded(state, notification: Omit<AppNotification, 'id'>) {
       state.notifications.push({ id: state.nextNotificationId, ...notification });
       state.nextNotificationId += 1;
     },

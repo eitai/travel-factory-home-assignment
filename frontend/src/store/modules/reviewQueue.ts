@@ -11,7 +11,7 @@ import {
 import type { RootState } from '../index';
 
 export interface ReviewQueueState {
-  page: PaginatedResult<VacationRequestDto> | null;
+  requestPage: PaginatedResult<VacationRequestDto> | null;
   filters: AllVacationRequestsFilters | null;
   requesters: UserSummaryDto[];
   isLoading: boolean;
@@ -27,7 +27,7 @@ export const reviewQueueModule: Module<ReviewQueueState, RootState> = {
   namespaced: true,
 
   state: () => ({
-    page: null,
+    requestPage: null,
     filters: null,
     requesters: [],
     isLoading: false,
@@ -40,8 +40,8 @@ export const reviewQueueModule: Module<ReviewQueueState, RootState> = {
       state.isLoading = true;
       state.errorMessage = null;
     },
-    loadSucceeded(state, page: PaginatedResult<VacationRequestDto>) {
-      state.page = page;
+    loadSucceeded(state, requestPage: PaginatedResult<VacationRequestDto>) {
+      state.requestPage = requestPage;
       state.isLoading = false;
     },
     loadFailed(state, errorMessage: string) {

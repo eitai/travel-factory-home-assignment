@@ -7,14 +7,15 @@ import {
 } from '../vacationRequests/vacationRequestEvents';
 import { listVacationRequestHistory, recordVacationRequestChange } from './requestHistoryService';
 
-export const parseVacationRequestChangedEvent: InputParser<VacationRequestChangedEvent> = (event) =>
-  parseJsonBody(event, vacationRequestChangedEventSchema);
+export const parseVacationRequestChangedEvent: InputParser<VacationRequestChangedEvent> = (
+  commonEvent,
+) => parseJsonBody(commonEvent, vacationRequestChangedEventSchema);
 
-export const recordVacationRequestChanged = internalRoute(
+export const handleVacationRequestChangedEvent = internalRoute(
   (changedEvent: VacationRequestChangedEvent) => recordVacationRequestChange(changedEvent),
 );
 
-export const getHistory = protectedRoute(
+export const handleGetVacationRequestHistory = protectedRoute(
   { action: 'readHistory', subject: 'VacationRequest' },
   (command: VacationRequestIdCommand, actor) => listVacationRequestHistory(command, actor),
 );
