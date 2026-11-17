@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import type { IsoDate } from '../services/timeService';
-import { isDateInPast, isDateRangeOrdered } from '../vacationRules';
+
+import { isDateInPast, isDateRangeOrdered, type IsoDate } from '../services/timeService';
 import { vacationRequestStatusValues } from '../vacationRequestStatus';
 import { paginationQuerySchema } from './paginationSchemas';
 

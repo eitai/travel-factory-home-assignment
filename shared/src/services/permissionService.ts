@@ -6,7 +6,7 @@ import {
   type ForcedSubject,
   type MongoAbility,
 } from '@casl/ability';
-import { Role } from './roles';
+import { Role } from '../roles';
 
 export const permissionActions = [
   'create',

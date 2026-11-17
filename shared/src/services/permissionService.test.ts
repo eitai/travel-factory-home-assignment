@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { defineAbilityFor, defineGuestAbility, vacationRequestSubject } from './permissions';
-import { Role } from './roles';
+import { defineAbilityFor, defineGuestAbility, vacationRequestSubject } from './permissionService';
+import { Role } from '../roles';
 
 const requester = { id: 1, role: Role.Requester };
 const validator = { id: 2, role: Role.Validator };

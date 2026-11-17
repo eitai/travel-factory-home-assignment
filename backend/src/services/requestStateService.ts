@@ -1,6 +1,6 @@
 import type { Response } from 'express';
 import type { AppAbility } from '@vacation-manager/shared';
-import type { ResolvedRoute } from '../services/cefService';
+import type { ResolvedRoute } from './cefService';
 
 interface RequestState {
   route?: ResolvedRoute;

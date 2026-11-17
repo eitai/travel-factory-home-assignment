@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { countDaysInclusive } from '../services/timeService';
-import { isDateRangeOrdered } from '../vacationRules';
+import { countDaysInclusive, isDateRangeOrdered } from '../services/timeService';
 
 export const MAX_TEAM_CALENDAR_DAYS = 62;
 

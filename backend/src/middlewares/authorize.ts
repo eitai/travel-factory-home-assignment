@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express';
 import { defineAbilityFor } from '@vacation-manager/shared';
 import { forbidden } from '../services/errorService';
-import { getResolvedRoute, setAbility } from './requestState';
+import { getResolvedRoute, setAbility } from '../services/requestStateService';
 
 export const authorize: RequestHandler = (request, response, next) => {
   const { access } = getResolvedRoute(response);

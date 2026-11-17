@@ -2,7 +2,7 @@ import type { RequestHandler } from 'express';
 import type { Passport } from 'passport';
 import type { UserDto } from '@vacation-manager/shared';
 import { unauthorized } from '../services/errorService';
-import { getResolvedRoute } from './requestState';
+import { getResolvedRoute } from '../services/requestStateService';
 
 export function createAuthenticateMiddleware(
   passport: InstanceType<typeof Passport>,

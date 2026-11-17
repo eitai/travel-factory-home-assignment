@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express';
 import { createCommonEventFromRequest, resolveRoute } from '../services/cefService';
 import { notFound } from '../services/errorService';
-import { setResolvedRoute } from './requestState';
+import { setResolvedRoute } from '../services/requestStateService';
 
 export const resolveRouteMiddleware: RequestHandler = (request, response, next) => {
   const resolvedRoute = resolveRoute(createCommonEventFromRequest(request));
